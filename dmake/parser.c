@@ -1,7 +1,7 @@
 /* Author: James Ridey 44805632
  *         james.ridey@students.mq.edu.au  
  * Creation Date: 13-10-2016
- * Last Modified: Thu 13 Oct 2016 16:06:27 AEDT
+ * Last Modified: Sun 16 Oct 2016 02:07:56 PM AEDT
  */
 
 #include "parser.h"
@@ -29,21 +29,48 @@ size_t rules_size = 0;
 int parse(FILE* file)
 {
 	char* line = NULL;
-	char* previous_line = NULL;
+	char* line_raw = NULL;
 	size_t len = 0;
 
-	int append = 0;
-	int inside_rule = 0;
+	bool append = false;
 
-	while (getline(&line, &len, file) != -1)
+	while (getline(&line_raw, &len, file) != -1)
 	{
+		size_t length = line != NULL ? strlen(line) : 0;
+		size_t length_raw = strlen(line_raw);
+
+		if (append) 
+		{
+			line[length-2] = '\0';
+			//Another strip but I don't want to strip newlines and I only want to strip if the line contains characters
+			bool strip = false;
+			size_t i;
+			for (i = 0; i < length_raw; i++) if (isalnum(line_raw[i])) strip = true;
+			if (strip) while (isblank(*++line_raw));
+
+			line = realloc(line, length+length_raw-1);
+			strcat(line, line_raw);
+
+			append = false;
+		}
+		else 
+		{
+			if (length_raw > length) line = realloc(line, length_raw+1);
+			strcpy(line, line_raw);
+			length = 0;
+		}
+
+		if (line[strlen(line)-2] == '\\') 
+		{
+			append = true;
+			continue;
+		}
+
 		//Line is a comment ignore
-		for (size_t i = 0; i < strlen(line) && isblank(line[i]); i++) if (line[i] == '#') continue;
-		if (is_blankline(line, strlen(line))) inside_rule = 0;
-		if (append) line = strcat(line, previous_line);
+		if (line[0] == '#') continue;
 
 		//Parsing
-		if (inside_rule)
+		if (isblank(line[0]))
 		{
 			//Add command to rules
 			Rule* rule = &rules[rules_size-1];
@@ -51,10 +78,10 @@ int parse(FILE* file)
 			command.command = strdup(strstrip(line));
 			rule->commands[rule->commands_size++] = command;
 		}
-		else
+		else if (isalnum(line[0]))
 		{
 			char* save = NULL;
-			char* token = strtok_r(line, "\n\t ", &save);
+			char* token = strtok_r(line, ":", &save);
 
 			Rule rule = {0};
 			rule.rule_name = strdup(token);
@@ -62,22 +89,14 @@ int parse(FILE* file)
 			while (token != NULL)
 			{
 				token = strtok_r(NULL, "\n\t ", &save);
-				//TODO Is there a better way?
 				if (token != NULL) rule.files[rule.files_size++] = strdup(token);
 			}
-			inside_rule = 1;
 			rules[rules_size++] = rule;
 		}
-
-		//Check if line has a backslash
-		while (*line++ != '\0')
-		{
-			if (isblank(*line)) append = 0;
-			else if (*line == '\\') append = 1;
-		}
-		if (append) previous_line = strdup(line);
 	}
-	free(previous_line);
+	free(line);
+	free(line_raw);
+
 	return 0;
 }
 
@@ -88,10 +107,11 @@ int execute()
 
 void debug_stage1()
 {
-	for (size_t i = 0; i < rules_size; i++)
+	size_t i;
+	for (i = 0; i < rules_size; i++)
 	{
 		Rule rule = rules[i];
-		printf("Rule %lu: \n", i);
+		printf("Rule %lu: \n", i+1);
 		printf("\tTargets:      %s\n", rule.rule_name);		
 
 		char* files = strjoin(rule.files, rule.files_size, " ");
@@ -101,7 +121,27 @@ void debug_stage1()
 		if (rule.commands_size > 0)
 		{
 			printf("Commands:\n");
-			for (size_t ii = 0; ii < rule.commands_size-1; ii++) printf("\t%s\n", rule.commands[ii].command);
+			size_t ii;
+			for (ii = 0; ii < rule.commands_size; ii++) printf("\t%s\n", rule.commands[ii].command);
+		}
+		printf("\n");
+	}
+}
+
+void free_rules()
+{
+	size_t i;
+	for (i = 0; i < rules_size; i++)
+	{
+		Rule* rule = &rules[i];
+		free(rule->rule_name);
+		size_t ii;
+		for (ii = 0; ii < rule->files_size; ii++) free(rule->files[ii]);
+		for (ii = 0; ii < rule->commands_size; ii++) 
+		{
+			//Command command = rule->commands[ii];
+			//free(command.command);
+			//free((&rule->commands[ii])->command);
 		}
 	}
 }
