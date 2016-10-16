@@ -1,7 +1,7 @@
 /* Author: James Ridey 44805632
  *         james.ridey@students.mq.edu.au  
  * Creation Date: 13-10-2016
- * Last Modified: Mon 17 Oct 2016 00:40:11 AEDT
+ * Last Modified: Mon 17 Oct 2016 02:07:56 AEDT
  */
 
 #include "parser.h"
@@ -76,8 +76,23 @@ int parse(FILE* file)
 		//TODO strlen is expensive replace with length and length_raw
 		length = strlen(line);
 
+		bool stop = false;
+		for (i = length-1; i > 0; i--)
+		{
+			if (line[i] == '\\')
+			{
+				stop = true;
+				break;
+			}
+			else if (isalnum(line[i])) break;
+		}
 		//Line has a back slash append line
-		if (line[length-2] == '\\')
+		/*if (line[length-2] == '\\')
+		{
+			append = true;
+			continue;
+		}*/
+		if (stop) 
 		{
 			append = true;
 			continue;
