@@ -1,7 +1,7 @@
 /* Author: James Ridey 44805632
  *         james.ridey@students.mq.edu.au  
  * Creation Date: 13-10-2016
- * Last Modified: Sun 16 Oct 2016 17:36:15 AEDT
+ * Last Modified: Sun 16 Oct 2016 19:33:58 AEDT
  */
 
 #include "parser.h"
@@ -31,11 +31,14 @@ int parse(FILE* file)
 	char* line = NULL;
 	char* line_raw = NULL;
 	size_t len = 0;
+	size_t line_num = 0;
 
 	bool append = false;
+	bool in_rule = false;
 
 	while (getline(&line_raw, &len, file) != -1)
 	{
+		line_num++;
 		size_t length = line != NULL ? strlen(line) : 0;
 		size_t length_raw = strlen(line_raw);
 
@@ -83,7 +86,18 @@ int parse(FILE* file)
 		//Parsing
 		if (isblank(line[0]))
 		{
-			if (!strfind(line, length, isalnum)) continue;
+			if (!in_rule)
+			{
+				fprintf(stderr, "Syntax error at line %lu: Unexpected command without rule header:\n", line_num);
+				fprintf(stderr, "%s", line);
+				return 1;
+			}
+
+			if (!strfind(line, length, isalnum)) 
+			{
+				in_rule = false;
+				continue;
+			}
 
 			//Add command to rules
 			Rule* rule = &rules[rules_size-1];
@@ -97,7 +111,13 @@ int parse(FILE* file)
 			char* token = strtok_r(line, ":", &save);
 
 			Rule rule = {0};
-			rule.rule_name = strdup(strstrip(token, "\t\n "));
+			if (strlen(token) != length) rule.rule_name = strdup(strstrip(token, "\t\n "));
+			else
+			{
+				fprintf(stderr, "Syntax error at line %lu: Expected colon separator in rule header:\n", line_num);
+				fprintf(stderr, "%s", line);
+				return 1;
+			}
 
 			while (token != NULL)
 			{
@@ -105,10 +125,11 @@ int parse(FILE* file)
 				if (token != NULL) rule.files[rule.files_size++] = strdup(token);
 			}
 			rules[rules_size++] = rule;
+			in_rule = true;
 		}
 	}
 	free(line);
-	free(line_raw);
+	//free(line_raw);
 
 	return 0;
 }

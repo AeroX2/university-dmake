@@ -1,7 +1,7 @@
 /* Author: James Ridey 44805632
  *         james.ridey@students.mq.edu.au  
  * Creation Date: 13-10-2016
- * Last Modified: Sun 16 Oct 2016 17:22:50 AEDT
+ * Last Modified: Sun 16 Oct 2016 19:04:47 AEDT
  */
 
 #include <stdio.h>
@@ -53,7 +53,7 @@ int main(int argc, char **argv)
 	fclose(file);
 
 	//Parse had an error
-	if (output < 0) exit(1);
+	if (output > 0) exit(1);
 
 	if (debug == 0) output = execute();
 	else
@@ -70,7 +70,7 @@ int main(int argc, char **argv)
 	}
 
 	free_rules();
-	if (output < 0) exit(1);
+	if (output > 0) exit(1);
 
     return 0;
 }
