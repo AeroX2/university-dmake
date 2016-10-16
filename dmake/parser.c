@@ -1,7 +1,7 @@
 /* Author: James Ridey 44805632
  *         james.ridey@students.mq.edu.au  
  * Creation Date: 13-10-2016
- * Last Modified: Sun 16 Oct 2016 15:06:56 AEDT
+ * Last Modified: Sun 16 Oct 2016 15:30:12 AEDT
  */
 
 #include "parser.h"
@@ -109,16 +109,16 @@ void debug_stage1()
 	{
 		Rule rule = rules[i];
 		printf("Rule %lu: \n", i+1);
-		printf("\tTargets:      %s\n", rule.rule_name);		
+		printf("    Targets:      %s\n", rule.rule_name);
 
-		char* files = strjoin(rule.files, rule.files_size, " ");
-		printf("\tDependencies: %s\n", files);
+		char* files = strjoin(rule.files, rule.files_size, ", ");
+		printf("    Dependencies: %s\n", files);
 		free(files);
 
 		if (rule.commands_size > 0)
 		{
 			printf("Commands:\n");
-			for (size_t ii = 0; ii < rule.commands_size; ii++) printf("\t%s\n", rule.commands[ii].command);
+			for (size_t ii = 0; ii < rule.commands_size; ii++) printf("    %s\n", rule.commands[ii].command);
 		}
 		printf("\n");
 	}
