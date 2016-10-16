@@ -1,7 +1,7 @@
 /* Author: James Ridey 44805632
  *         james.ridey@students.mq.edu.au  
  * Creation Date: 13-10-2016
- * Last Modified: Sun 16 Oct 2016 02:07:56 PM AEDT
+ * Last Modified: Sun 16 Oct 2016 15:06:56 AEDT
  */
 
 #include "parser.h"
@@ -16,7 +16,7 @@ typedef struct Rule
 {
 	char* rule_name;
 
-	char* files[100];
+	char* files[1000];
 	size_t files_size;
 
 	Command commands[1000];
@@ -44,8 +44,7 @@ int parse(FILE* file)
 			line[length-2] = '\0';
 			//Another strip but I don't want to strip newlines and I only want to strip if the line contains characters
 			bool strip = false;
-			size_t i;
-			for (i = 0; i < length_raw; i++) if (isalnum(line_raw[i])) strip = true;
+			for (size_t i = 0; i < length_raw; i++) if (isalnum(line_raw[i])) strip = true;
 			if (strip) while (isblank(*++line_raw));
 
 			line = realloc(line, length+length_raw-1);
@@ -57,7 +56,6 @@ int parse(FILE* file)
 		{
 			if (length_raw > length) line = realloc(line, length_raw+1);
 			strcpy(line, line_raw);
-			length = 0;
 		}
 
 		if (line[strlen(line)-2] == '\\') 
@@ -107,8 +105,7 @@ int execute()
 
 void debug_stage1()
 {
-	size_t i;
-	for (i = 0; i < rules_size; i++)
+	for (size_t i = 0; i < rules_size; i++)
 	{
 		Rule rule = rules[i];
 		printf("Rule %lu: \n", i+1);
@@ -121,8 +118,7 @@ void debug_stage1()
 		if (rule.commands_size > 0)
 		{
 			printf("Commands:\n");
-			size_t ii;
-			for (ii = 0; ii < rule.commands_size; ii++) printf("\t%s\n", rule.commands[ii].command);
+			for (size_t ii = 0; ii < rule.commands_size; ii++) printf("\t%s\n", rule.commands[ii].command);
 		}
 		printf("\n");
 	}
@@ -130,14 +126,12 @@ void debug_stage1()
 
 void free_rules()
 {
-	size_t i;
-	for (i = 0; i < rules_size; i++)
+	for (size_t i = 0; i < rules_size; i++)
 	{
 		Rule* rule = &rules[i];
 		free(rule->rule_name);
-		size_t ii;
-		for (ii = 0; ii < rule->files_size; ii++) free(rule->files[ii]);
-		for (ii = 0; ii < rule->commands_size; ii++) 
+		for (size_t ii = 0; ii < rule->files_size; ii++) free(rule->files[ii]);
+		for (size_t ii = 0; ii < rule->commands_size; ii++) 
 		{
 			//Command command = rule->commands[ii];
 			//free(command.command);
