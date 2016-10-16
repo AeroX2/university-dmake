@@ -1,7 +1,7 @@
 /* Author: James Ridey 44805632
  *         james.ridey@students.mq.edu.au  
  * Creation Date: 13-10-2016
- * Last Modified: Sun 16 Oct 2016 19:04:47 AEDT
+ * Last Modified: Sun 16 Oct 2016 20:36:28 AEDT
  */
 
 #include <stdio.h>
@@ -46,7 +46,7 @@ int main(int argc, char **argv)
 	FILE* file = fopen(filename, "r");
 	if (file == NULL)
 	{
-		printf("Error: Could not read Dmakefile\n");
+		fprintf(stderr, "Error: Could not read Dmakefile\n");
 		exit(1);
 	}
 	int output = parse(file);

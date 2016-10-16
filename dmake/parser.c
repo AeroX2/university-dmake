@@ -1,7 +1,7 @@
 /* Author: James Ridey 44805632
  *         james.ridey@students.mq.edu.au  
  * Creation Date: 13-10-2016
- * Last Modified: Sun 16 Oct 2016 19:33:58 AEDT
+ * Last Modified: Mon 17 Oct 2016 00:40:11 AEDT
  */
 
 #include "parser.h"
@@ -42,12 +42,25 @@ int parse(FILE* file)
 		size_t length = line != NULL ? strlen(line) : 0;
 		size_t length_raw = strlen(line_raw);
 
+		size_t i;
+
 		if (append) 
 		{
 			line[length-2] = '\0';
 
 			//I only want to strip the beginning and only if the line contains characters
-			if (strfind(line_raw, length_raw, isalnum)) while (isblank(*++line_raw));
+			/*size_t start = 0;
+			if (strfind(line_raw, length_raw, isalnum)) 
+			{
+				for (i = 0; i < length_raw; i++)
+				{
+					if (!isblank(line_raw[i]))
+					{
+						start = i;
+						break;
+					}
+				}
+			}*/
 
 			line = realloc(line, length+length_raw-1);
 			strcat(line, line_raw);
@@ -72,7 +85,7 @@ int parse(FILE* file)
 
 		//Line is a comment ignore
 		bool ignore = false;
-		for (size_t i = 0; i < length; i++)
+		for (i = 0; i < length; i++)
 		{
 			if (line[i] == '#') 
 			{
