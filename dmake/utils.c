@@ -1,28 +1,48 @@
 /* Author: James Ridey 44805632
  *         james.ridey@students.mq.edu.au  
  * Creation Date: 13-10-2016
- * Last Modified: Sun 16 Oct 2016 16:27:52 AEDT
+ * Last Modified: Sun 16 Oct 2016 17:24:24 AEDT
  */
 
 #include "utils.h"
 
-char* strstrip(char* string)
+char* strstrip(char* string, char* strip)
 {
-	int start = 0;
-	int end = 0;
-
 	size_t length = strlen(string);
+	size_t length_strip = strlen(strip);
+
 	size_t i;
+	size_t ii;
+	int start = 0;
 	for (i = 0; i < length; i++)
 	{
-		if (!isblank(string[i])) break;
-		start++;
+		bool found = false;
+		for (ii = 0; ii < length_strip; ii++)
+		{
+			if (string[i] == strip[ii]) 
+			{
+				start = i+1;
+				found = true;
+				break;
+			}
+		}
+		if (!found) break;
 	}
 
-	for (i = length-1; i > 0; i--)
+	int end = length;
+	for (i = length; i > 0; i--)
 	{
-		end = i;
-		if (string[i] == '\n') break;
+		bool found = false;
+		for (ii = 0; ii < length_strip; ii++)
+		{
+			if (string[i] == strip[ii]) 
+			{
+				end = i;
+				found = true;
+				break;
+			}
+		}
+		if (found) break;
 	}
 
 	string[end] = '\0';
@@ -53,3 +73,14 @@ char* strjoin(char** strings, size_t strings_len, char* delimiter)
 	}
 	return string;
 }
+
+bool strfind(char* string, size_t length, int (*f)(int))
+{
+	size_t i;
+	for (i = 0; i < length; i++)
+	{
+		if (f(string[i])) return true;
+	}
+	return false;
+}
+

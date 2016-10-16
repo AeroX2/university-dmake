@@ -1,7 +1,7 @@
 /* Author: James Ridey 44805632
  *         james.ridey@students.mq.edu.au  
  * Creation Date: 13-10-2016
- * Last Modified: Sun 16 Oct 2016 16:25:48 AEDT
+ * Last Modified: Sun 16 Oct 2016 17:36:15 AEDT
  */
 
 #include "parser.h"
@@ -42,17 +42,9 @@ int parse(FILE* file)
 		if (append) 
 		{
 			line[length-2] = '\0';
-			//Another strip but I don't want to strip newlines and I only want to strip if the line contains characters
-			bool strip = false;
-			for (size_t i = 0; i < length_raw; i++) 
-			{
-				if (isalnum(line_raw[i])) 
-				{
-					strip = true;
-					break;
-				}
-			}
-			if (strip) while (isblank(*++line_raw));
+
+			//I only want to strip the beginning and only if the line contains characters
+			if (strfind(line_raw, length_raw, isalnum)) while (isblank(*++line_raw));
 
 			line = realloc(line, length+length_raw-1);
 			strcat(line, line_raw);
@@ -66,17 +58,18 @@ int parse(FILE* file)
 		}
 
 		//TODO strlen is expensive replace with length and length_raw
+		length = strlen(line);
+
 		//Line has a back slash append line
-		if (line[strlen(line)-2] == '\\') 
+		if (line[length-2] == '\\')
 		{
 			append = true;
 			continue;
 		}
 
-		//TODO strlen is expensive replace with length and length_raw
 		//Line is a comment ignore
 		bool ignore = false;
-		for (size_t i = 0; i < strlen(line); i++) 
+		for (size_t i = 0; i < length; i++)
 		{
 			if (line[i] == '#') 
 			{
@@ -90,10 +83,12 @@ int parse(FILE* file)
 		//Parsing
 		if (isblank(line[0]))
 		{
+			if (!strfind(line, length, isalnum)) continue;
+
 			//Add command to rules
 			Rule* rule = &rules[rules_size-1];
 			Command command = {0};
-			command.command = strdup(strstrip(line));
+			command.command = strdup(strstrip(line, "\t\n "));
 			rule->commands[rule->commands_size++] = command;
 		}
 		else if (isalnum(line[0]))
@@ -102,7 +97,7 @@ int parse(FILE* file)
 			char* token = strtok_r(line, ":", &save);
 
 			Rule rule = {0};
-			rule.rule_name = strdup(token);
+			rule.rule_name = strdup(strstrip(token, "\t\n "));
 
 			while (token != NULL)
 			{
