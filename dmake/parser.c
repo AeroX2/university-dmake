@@ -1,7 +1,7 @@
 /* Author: James Ridey 44805632
  *         james.ridey@students.mq.edu.au  
  * Creation Date: 13-10-2016
- * Last Modified: Sun 16 Oct 2016 16:23:36 AEDT
+ * Last Modified: Sun 16 Oct 2016 16:25:48 AEDT
  */
 
 #include "parser.h"
@@ -125,7 +125,8 @@ int execute()
 
 void debug_stage1()
 {
-	for (size_t i = 0; i < rules_size; i++)
+	size_t i;
+	for (i = 0; i < rules_size; i++)
 	{
 		Rule rule = rules[i];
 		printf("Rule %lu:\n", i+1);
@@ -143,7 +144,8 @@ void debug_stage1()
 		if (rule.commands_size > 0)
 		{
 			printf("Commands:\n");
-			for (size_t ii = 0; ii < rule.commands_size; ii++) printf("    %s\n", rule.commands[ii].command);
+			size_t ii;
+			for (ii = 0; ii < rule.commands_size; ii++) printf("    %s\n", rule.commands[ii].command);
 		}
 		printf("\n");
 	}
@@ -151,12 +153,14 @@ void debug_stage1()
 
 void free_rules()
 {
-	for (size_t i = 0; i < rules_size; i++)
+	size_t i;
+	size_t ii;
+	for (i = 0; i < rules_size; i++)
 	{
 		Rule* rule = &rules[i];
 		free(rule->rule_name);
-		for (size_t ii = 0; ii < rule->files_size; ii++) free(rule->files[ii]);
-		for (size_t ii = 0; ii < rule->commands_size; ii++) 
+		for (ii = 0; ii < rule->files_size; ii++) free(rule->files[ii]);
+		for (ii = 0; ii < rule->commands_size; ii++) 
 		{
 			//Command command = rule->commands[ii];
 			//free(command.command);

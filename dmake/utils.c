@@ -1,7 +1,7 @@
 /* Author: James Ridey 44805632
  *         james.ridey@students.mq.edu.au  
  * Creation Date: 13-10-2016
- * Last Modified: Sun 16 Oct 2016 15:31:41 AEDT
+ * Last Modified: Sun 16 Oct 2016 16:27:52 AEDT
  */
 
 #include "utils.h"
@@ -12,13 +12,14 @@ char* strstrip(char* string)
 	int end = 0;
 
 	size_t length = strlen(string);
-	for (size_t i = 0; i < length; i++)
+	size_t i;
+	for (i = 0; i < length; i++)
 	{
 		if (!isblank(string[i])) break;
 		start++;
 	}
 
-	for (size_t i = length-1; i > 0; i--)
+	for (i = length-1; i > 0; i--)
 	{
 		end = i;
 		if (string[i] == '\n') break;
@@ -40,11 +41,12 @@ char* strjoin(char** strings, size_t strings_len, char* delimiter)
 	}
 
 	size_t length = 0;
-	for (size_t i = 0; i < strings_len; i++) length += strlen(strings[i])+strlen(delimiter);
+	size_t i;
+	for (i = 0; i < strings_len; i++) length += strlen(strings[i])+strlen(delimiter);
 	char* string = malloc(length-1);
 
 	strcpy(string, strings[0]);
-	for (size_t i = 1; i < strings_len; i++) 
+	for (i = 1; i < strings_len; i++) 
 	{
 		strcat(string, delimiter);
 		strcat(string, strings[i]);	
