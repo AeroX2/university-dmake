@@ -1,7 +1,7 @@
 /* Author: James Ridey 44805632
  *         james.ridey@students.mq.edu.au  
  * Creation Date: 13-10-2016
- * Last Modified: Sun 16 Oct 2016 15:06:43 AEDT
+ * Last Modified: Sun 16 Oct 2016 15:31:41 AEDT
  */
 
 #include "utils.h"
@@ -40,7 +40,7 @@ char* strjoin(char** strings, size_t strings_len, char* delimiter)
 	}
 
 	size_t length = 0;
-	for (size_t i = 0; i < strings_len; i++) length += strlen(strings[i])+1;
+	for (size_t i = 0; i < strings_len; i++) length += strlen(strings[i])+strlen(delimiter);
 	char* string = malloc(length-1);
 
 	strcpy(string, strings[0]);

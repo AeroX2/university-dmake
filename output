@@ -1,0 +1,96 @@
+Rule 1:
+    Targets:      all
+    Dependencies: data
+
+Rule 2:
+    Targets:      data
+    Dependencies: d1.dat, d2.dat, d3.dat, d4.dat, d5.dat, d6.dat, d7.dat, d8.dat, d9.dat, datadir
+
+Rule 3:
+    Targets:      datadir
+    Dependencies: d1.dat, d2.dat, d3.dat, d4.dat, d5.dat, d6.dat, d7.dat, d8.dat, d9.dat
+Commands:
+    mkdir datadir
+    cp d1.dat datadir
+    cp d2.dat datadir
+    cp d3.dat datadir
+    cp d4.dat datadir
+    cp d5.dat datadir
+    cp d6.dat datadir
+    cp d7.dat d8.dat d9.dat datadir
+    ls datadir
+
+Rule 4:
+    Targets:      d1.dat
+    Dependencies: iris.dat
+Commands:
+    cp iris.dat d1.dat
+
+Rule 5:
+    Targets:      d2.dat
+    Dependencies: iris.dat, d1.dat
+Commands:
+    cat iris.dat d1.dat > d2.dat
+
+Rule 6:
+    Targets:      d3.dat
+    Dependencies: iris.dat
+Commands:
+    tr -d :blank: < iris.dat > d3.dat
+
+Rule 7:
+    Targets:      d4.dat
+    Dependencies: d1.dat, d2.dat, d3.dat
+Commands:
+    cat d1.dat d2.dat d3.dat | tr "A-Z" "a-z" > d4.dat
+
+Rule 8:
+    Targets:      d5.dat
+    Dependencies: iris.dat
+Commands:
+    echo "This is d5.dat" > d5.dat
+    cat iris.dat >> d5.dat
+
+Rule 9:
+    Targets:      d6.dat
+    Dependencies: iris.dat, d1.dat
+Commands:
+    cat iris.dat d1.dat > d6.dat
+    cat iris.dat d1.dat >> d6.dat
+    cat iris.dat d1.dat >> d6.dat
+    
+
+Rule 10:
+    Targets:      d7.dat
+    Dependencies: 
+Commands:
+    echo "This is d7.dat" > d7.dat
+    echo "The Dmake file creates" >> d7.dat
+    echo "this file using" >> d7.dat
+    echo "echo commands." >> d7.dat
+
+Rule 11:
+    Targets:      d8.dat
+    Dependencies: d1.dat, d2.dat, d3.dat, d4.dat, d5.dat, d6.dat, d7.dat
+Commands:
+    wc d1.dat d2.dat d3.dat d4.dat d5.dat d6.dat d7.dat > d8.dat
+
+Rule 12:
+    Targets:      d9.dat
+    Dependencies: d1.dat, d2.dat, d3.dat, d4.dat, d5.dat, d6.dat, d7.dat, d8.dat
+Commands:
+    sort d1.dat > d9.dat
+    sort d2.dat >> d9.dat
+    sort d3.dat >> d9.dat
+    sort d4.dat >> d9.dat
+    sort d5.dat >> d9.dat
+    sort d6.dat >> d9.dat
+    sort d7.dat >> d9.dat
+    sort d8.dat >> d9.dat
+
+Rule 13:
+    Targets:      d10.dat
+    Dependencies: d9.dat
+Commands:
+    sort d9.dat > d10.dat
+

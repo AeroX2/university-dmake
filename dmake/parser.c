@@ -1,7 +1,7 @@
 /* Author: James Ridey 44805632
  *         james.ridey@students.mq.edu.au  
  * Creation Date: 13-10-2016
- * Last Modified: Sun 16 Oct 2016 15:30:12 AEDT
+ * Last Modified: Sun 16 Oct 2016 16:23:36 AEDT
  */
 
 #include "parser.h"
@@ -44,7 +44,14 @@ int parse(FILE* file)
 			line[length-2] = '\0';
 			//Another strip but I don't want to strip newlines and I only want to strip if the line contains characters
 			bool strip = false;
-			for (size_t i = 0; i < length_raw; i++) if (isalnum(line_raw[i])) strip = true;
+			for (size_t i = 0; i < length_raw; i++) 
+			{
+				if (isalnum(line_raw[i])) 
+				{
+					strip = true;
+					break;
+				}
+			}
 			if (strip) while (isblank(*++line_raw));
 
 			line = realloc(line, length+length_raw-1);
@@ -58,14 +65,27 @@ int parse(FILE* file)
 			strcpy(line, line_raw);
 		}
 
+		//TODO strlen is expensive replace with length and length_raw
+		//Line has a back slash append line
 		if (line[strlen(line)-2] == '\\') 
 		{
 			append = true;
 			continue;
 		}
 
+		//TODO strlen is expensive replace with length and length_raw
 		//Line is a comment ignore
-		if (line[0] == '#') continue;
+		bool ignore = false;
+		for (size_t i = 0; i < strlen(line); i++) 
+		{
+			if (line[i] == '#') 
+			{
+				ignore = true;
+				break;
+			}
+			else if (!isblank(line[i])) break;
+		}
+		if (ignore) continue;
 
 		//Parsing
 		if (isblank(line[0]))
@@ -108,12 +128,17 @@ void debug_stage1()
 	for (size_t i = 0; i < rules_size; i++)
 	{
 		Rule rule = rules[i];
-		printf("Rule %lu: \n", i+1);
+		printf("Rule %lu:\n", i+1);
 		printf("    Targets:      %s\n", rule.rule_name);
 
-		char* files = strjoin(rule.files, rule.files_size, ", ");
-		printf("    Dependencies: %s\n", files);
-		free(files);
+		printf("    Dependencies: ");
+		if (rule.files_size > 0)
+		{
+			char* files = strjoin(rule.files, rule.files_size, ", ");
+			printf("%s", files);
+			free(files);
+		}
+		printf("\n");
 
 		if (rule.commands_size > 0)
 		{
