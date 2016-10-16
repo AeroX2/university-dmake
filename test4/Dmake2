@@ -1,0 +1,62 @@
+all: data
+
+data: d1.dat d2.dat d3.dat d4.dat d5.dat d6.dat d7.dat d8.dat d9.dat datadir
+
+# The contents of the datadir is constructed by copying the local files.
+datadir: d1.dat d2.dat d3.dat d4.dat d5.dat d6.dat d7.dat d8.dat d9.dat
+	# First we make the datadir.
+	mkdir datadir
+	# Then we copy some local files
+	cp d1.dat datadir
+        cp d2.dat datadir
+	cp d3.dat datadir
+	cp d4.dat datadir
+	cp d5.dat datadir
+	cp d6.dat datadir
+	cp d7.dat d8.dat d9.dat datadir
+	# Finally we list the datadir
+	ls datadir
+
+d1.dat: iris.dat
+ cp iris.dat d1.dat
+
+d2.dat: iris.dat d1.dat
+    cat iris.dat d1.dat > d2.dat
+
+d3.dat: iris.dat
+	  tr -d :blank: < iris.dat > d3.dat
+
+d4.dat: d1.dat d2.dat d3.dat
+	  	cat d1.dat d2.dat d3.dat | tr "A-Z" "a-z" > d4.dat
+
+d5.dat: iris.dat
+	echo "This is d5.dat" > d5.dat
+	cat iris.dat >> d5.dat
+
+d6.dat: iris.dat d1.dat
+	cat iris.dat d1.dat > d6.dat
+	cat iris.dat d1.dat >> d6.dat
+ cat iris.dat d1.dat >> d6.dat
+	
+d7.dat:
+	echo "This is d7.dat" > d7.dat
+      	echo "The Dmake file creates" >> d7.dat
+    	echo "this file using" >> d7.dat
+        echo "echo commands." >> d7.dat
+
+d8.dat: d1.dat d2.dat d3.dat d4.dat d5.dat d6.dat d7.dat
+	wc d1.dat d2.dat d3.dat d4.dat d5.dat d6.dat d7.dat > d8.dat
+
+d9.dat: d1.dat d2.dat d3.dat d4.dat d5.dat d6.dat d7.dat d8.dat
+	sort d1.dat > d9.dat
+	sort d2.dat >> d9.dat
+	sort d3.dat >> d9.dat
+	sort d4.dat >> d9.dat
+	sort d5.dat >> d9.dat
+	sort d6.dat >> d9.dat
+    	sort d7.dat >> d9.dat
+	sort d8.dat >> d9.dat
+
+d10.dat: d9.dat
+	sort d9.dat > d10.dat
+

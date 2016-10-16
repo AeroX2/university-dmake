@@ -1,0 +1,12 @@
+Rule 1:
+    Targets:      echo
+    Dependencies: echo.o
+Commands:
+    gcc -o echo echo.o
+
+Rule 2:
+    Targets:      echo.o
+    Dependencies: echo.c, echo.h
+Commands:
+    gcc -c echo.c
+

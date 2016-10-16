@@ -1,0 +1,10 @@
+# Build the echo program from the object file echo.o
+echo: echo.o
+# Here is the command to build the final executable
+	gcc -o echo echo.o
+
+# Compile the source code into an object file
+# This uses gcc also.
+echo.o :   echo.c 	  echo.h
+ gcc -c echo.c
+

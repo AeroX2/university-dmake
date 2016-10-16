@@ -1,0 +1,3 @@
+a_very_long_file_name_that_tries_to_test_handling_of_long_file_names_to-ensure-that-they.can.be.handled=properly=even_if_it_seems_quite_weird:     a_very_long_file_name_that_tries_to_test_handling_of_long_file_names_to-ensure-that-they.can.be.handled=properly=even_if_it_seems_quite_weird.c
+   gcc -o a_very_long_file_name_that_tries_to_test_handling_of_long_file_names_to-ensure-that-they.can.be.handled=properly=even_if_it_seems_quite_weird a_very_long_file_name_that_tries_to_test_handling_of_long_file_names_to-ensure-that-they.can.be.handled=properly=even_if_it_seems_quite_weird.c
+

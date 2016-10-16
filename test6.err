@@ -1,0 +1,2 @@
+Syntax error at line 6: Expected colon separator in rule header:
+echo.o   echo.c 	  echo.h

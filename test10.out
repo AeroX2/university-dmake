@@ -1,0 +1,189 @@
+Rule 1:
+    Targets:      all
+    Dependencies: detox, inline-detox
+
+Rule 2:
+    Targets:      detox
+    Dependencies: detox.o, file.o, clean_string.o, table.o, parse_table.o, config_file_l.o, config_file_y.o, config_file_spoof.o, config_file_dump.o, parse_options_getopt.o, parse_options_generic.o
+Commands:
+    gcc -o detox detox.o file.o clean_string.o table.o parse_table.o config_file_l.o config_file_y.o config_file_spoof.o config_file_dump.o parse_options_getopt.o parse_options_generic.o 
+
+Rule 3:
+    Targets:      inline-detox
+    Dependencies: detox-inline.o, file-inline.o, clean_string.o, table.o, parse_table.o, config_file_l.o, config_file_y.o, config_file_spoof.o, config_file_dump.o, parse_options_getopt-inline.o, parse_options_generic-inline.o
+Commands:
+    gcc -o inline-detox detox-inline.o file-inline.o clean_string.o    table.o parse_table.o config_file_l.o config_file_y.o config_file_spoof.o config_file_dump.o parse_options_getopt-inline.o parse_options_generic-inline.o 
+
+Rule 4:
+    Targets:      config_file_l.c
+    Dependencies: config_file.l, config_file_y.h
+Commands:
+    lex config_file.l
+    mv lex.yy.c config_file_l.c
+
+Rule 5:
+    Targets:      config_file_y.c
+    Dependencies: config_file.y
+Commands:
+    yacc -d config_file.y
+    mv y.tab.c config_file_y.c
+    mv y.tab.h config_file_y.h
+
+Rule 6:
+    Targets:      config_file_y.h
+    Dependencies: config_file_y.c
+
+Rule 7:
+    Targets:      detox_path.h
+    Dependencies: config.status
+Commands:
+    > detox_path.h
+    echo "char default_etc_dir[]=\"/usr/local/etc\";" >> detox_path.h
+    echo "char default_data_dir[]=\"/usr/local/share/detox\";" >> detox_path.h
+
+Rule 8:
+    Targets:      detox-inline.o
+    Dependencies: detox.c
+Commands:
+    gcc -c -g -O2 -DINLINE_MODE $< -o $@
+
+Rule 9:
+    Targets:      parse_options_generic-inline.o
+    Dependencies: parse_options_generic.c
+Commands:
+    gcc -c -g -O2 -DINLINE_MODE $< -o $@
+
+Rule 10:
+    Targets:      parse_options_getopt-inline.o
+    Dependencies: parse_options_getopt.c
+Commands:
+    gcc -c -g -O2 -DINLINE_MODE $< -o $@
+
+Rule 11:
+    Targets:      detox.o
+    Dependencies: detox.c, detox_path.h
+
+Rule 12:
+    Targets:      install
+    Dependencies: install-base, install-safe-config, install-sample-config
+
+Rule 13:
+    Targets:      force-install
+    Dependencies: install-base, install-unsafe-config, install-sample-config
+
+Rule 14:
+    Targets:      install-base
+    Dependencies: detox, inline-detox
+Commands:
+    /usr/bin/install -c -m 755 -d ${DESTDIR}/usr/local/bin
+    /usr/bin/install -c -m 755 -d ${DESTDIR}/usr/local/share/man/man1
+    /usr/bin/install -c -m 755 -d ${DESTDIR}/usr/local/share/man/man5
+    /usr/bin/install -c -m 755 -d ${DESTDIR}/usr/local/etc
+    /usr/bin/install -c -m 755 -d ${DESTDIR}/usr/local/share/detox
+    /usr/bin/install -c -m 755 detox ${DESTDIR}/usr/local/bin
+    /usr/bin/install -c -m 755 inline-detox ${DESTDIR}/usr/local/bin
+    /usr/bin/install -c -m 644 detox.1 ${DESTDIR}/usr/local/share/man/man1
+    /usr/bin/install -c -m 644 detoxrc.5 detox.tbl.5 ${DESTDIR}/usr/local/share/man/man5
+
+Rule 15:
+    Targets:      install-safe-config
+    Dependencies: 
+Commands:
+    @if [ ! -f ${DESTDIR}/usr/local/etc/detoxrc ]; then 		/usr/bin/install -c -m 644 detoxrc ${DESTDIR}/usr/local/etc; 	else 		echo "${DESTDIR}/usr/local/etc/detoxrc exists, skipping"; 	fi
+    @if [ ! -f ${DESTDIR}/usr/local/share/detox/iso8859_1.tbl ]; then 		/usr/bin/install -c -m 644 iso8859_1.tbl ${DESTDIR}/usr/local/share/detox; 	else 		echo "${DESTDIR}/usr/local/share/detox/iso8859_1.tbl exists, skipping"; 	fi
+    @if [ ! -f ${DESTDIR}/usr/local/share/detox/unicode.tbl ]; then 		/usr/bin/install -c -m 644 unicode.tbl ${DESTDIR}/usr/local/share/detox; 	else 		echo "${DESTDIR}/usr/local/share/detox/unicode.tbl exists, skipping"; 	fi
+
+Rule 16:
+    Targets:      install-unsafe-config
+    Dependencies: 
+Commands:
+    /usr/bin/install -c -m 644 detoxrc ${DESTDIR}/usr/local/etc
+    /usr/bin/install -c -m 644 iso8859_1.tbl ${DESTDIR}/usr/local/share/detox
+    /usr/bin/install -c -m 644 unicode.tbl ${DESTDIR}/usr/local/share/detox
+
+Rule 17:
+    Targets:      install-sample-config
+    Dependencies: 
+Commands:
+    /usr/bin/install -c -m 644 detoxrc ${DESTDIR}/usr/local/etc/detoxrc.sample
+    /usr/bin/install -c -m 644 iso8859_1.tbl ${DESTDIR}/usr/local/share/detox/iso8859_1.tbl.sample
+    /usr/bin/install -c -m 644 unicode.tbl ${DESTDIR}/usr/local/share/detox/unicode.tbl.sample
+
+Rule 18:
+    Targets:      uninstall
+    Dependencies: uninstall-base
+Commands:
+    @echo 'This command doesn''t remove existing configuration'
+    @echo 'files.  Run "make force-uninstall" to remove the'
+    @echo 'live configuration files as well.'
+
+Rule 19:
+    Targets:      force-uninstall
+    Dependencies: uninstall-base
+Commands:
+    rm -f ${DESTDIR}/usr/local/etc/detoxrc
+    rm -f ${DESTDIR}/usr/local/share/detox/iso8859_1.tbl
+    rm -f ${DESTDIR}/usr/local/share/detox/unicode.tbl
+    @if [ -d ${DESTDIR}/usr/local/share/detox ]; then 		rmdir ${DESTDIR}/usr/local/share/detox; 	fi
+
+Rule 20:
+    Targets:      uninstall-base
+    Dependencies: 
+Commands:
+    rm -f ${DESTDIR}/usr/local/bin/detox
+    rm -f ${DESTDIR}/usr/local/bin/inline-detox
+    rm -f ${DESTDIR}/usr/local/share/man/man1/detox.1*
+    rm -f ${DESTDIR}/usr/local/share/man/man5/detoxrc.5*
+    rm -f ${DESTDIR}/usr/local/share/man/man5/detox.tbl.5*
+    rm -f ${DESTDIR}/usr/local/etc/detoxrc.sample
+    rm -f ${DESTDIR}/usr/local/share/detox/iso8859_1.tbl.sample
+    rm -f ${DESTDIR}/usr/local/share/detox/unicode.tbl.sample
+
+Rule 21:
+    Targets:      clean
+    Dependencies: 
+Commands:
+    rm -f *.o core *~ a.out *.core
+    rm -f detox
+    rm -f inline-detox
+
+Rule 22:
+    Targets:      distclean
+    Dependencies: dist-clean
+
+Rule 23:
+    Targets:      dist-clean
+    Dependencies: clean
+Commands:
+    rm -f *.BAK
+    rm -f config.log config.status config.cache
+    rm -f Makefile config.h install.sh
+    rm -f detox_path.h
+    rm -f .depend
+
+Rule 24:
+    Targets:      maintainer-clean
+    Dependencies: distclean
+Commands:
+    @echo 'This command is intended for maintainers to use; it'
+    @echo 'deletes files that may need special tools to rebuild.'
+    rm -f config_file_l.c config_file_y.[ch]
+
+Rule 25:
+    Targets:      distready
+    Dependencies: config_file_l.c, config_file_y.c, distclean
+
+Rule 26:
+    Targets:      dep
+    Dependencies: depend
+
+Rule 27:
+    Targets:      depend
+    Dependencies: 
+Commands:
+    mkdep -g -O2 detox.c file.c clean_string.c table.c parse_table.c config_file_l.c config_file_y.c config_file_spoof.c config_file_dump.c parse_options_getopt.c parse_options_generic.c detox-inline.c file-inline.c clean_string.c table.c parse_table.c config_file_l.c config_file_y.c config_file_spoof.c config_file_dump.c parse_options_getopt-inline.c parse_options_generic-inline.c
+
+Rule 28:
+    Targets:      dummy
+    Dependencies: 
+

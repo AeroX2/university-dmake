@@ -1,0 +1,187 @@
+#
+# Copyright (c) 2004-2006, Doug Harple.  All rights reserved.
+# 
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+# met:
+# 
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in the
+#    documentation and/or other materials provided with the distribution.
+# 
+# 3. Neither the name of author nor the names of its contributors may be
+#    used to endorse or promote products derived from this software
+#    without specific prior written permission.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+# 
+# $Id: Makefile.in,v 1.31 2008/04/12 01:02:47 purgedhalo Exp $
+#
+
+
+
+all: detox inline-detox
+
+#
+# Compile Rules
+#
+
+detox: detox.o file.o clean_string.o table.o parse_table.o config_file_l.o config_file_y.o \
+        config_file_spoof.o config_file_dump.o parse_options_getopt.o parse_options_generic.o
+	gcc -o detox detox.o file.o clean_string.o table.o parse_table.o config_file_l.o \
+config_file_y.o config_file_spoof.o config_file_dump.o parse_options_getopt.o \
+parse_options_generic.o 
+
+inline-detox: detox-inline.o file-inline.o clean_string.o table.o parse_table.o \
+config_file_l.o config_file_y.o config_file_spoof.o config_file_dump.o \
+parse_options_getopt-inline.o parse_options_generic-inline.o
+	gcc -o inline-detox detox-inline.o file-inline.o clean_string.o \
+   table.o parse_table.o config_file_l.o config_file_y.o config_file_spoof.o \
+config_file_dump.o parse_options_getopt-inline.o parse_options_generic-inline.o 
+
+#
+# Special Source Compiles
+#
+
+config_file_l.c: config_file.l config_file_y.h
+	lex config_file.l
+	mv lex.yy.c config_file_l.c
+
+config_file_y.c: config_file.y
+	yacc -d config_file.y
+	mv y.tab.c config_file_y.c
+	mv y.tab.h config_file_y.h
+
+# In case some future rule depends on config_file_y.h
+config_file_y.h: config_file_y.c
+
+detox_path.h: config.status
+	> detox_path.h
+	echo "char default_etc_dir[]=\"/usr/local/etc\";" >> detox_path.h
+	echo "char default_data_dir[]=\"/usr/local/share/detox\";" >> detox_path.h
+
+#
+# Special Object Compiles: Inline Mode
+# 
+
+detox-inline.o: detox.c
+	gcc -c -g -O2 -DINLINE_MODE $< -o $@
+
+parse_options_generic-inline.o: parse_options_generic.c
+	gcc -c -g -O2 -DINLINE_MODE $< -o $@
+
+parse_options_getopt-inline.o: parse_options_getopt.c
+	gcc -c -g -O2 -DINLINE_MODE $< -o $@
+
+# This is done by make dep too
+detox.o: detox.c detox_path.h
+
+#
+# Actions
+#
+
+install: install-base install-safe-config install-sample-config
+
+force-install: install-base install-unsafe-config install-sample-config
+
+install-base: detox inline-detox
+	/usr/bin/install -c -m 755 -d ${DESTDIR}/usr/local/bin
+	/usr/bin/install -c -m 755 -d ${DESTDIR}/usr/local/share/man/man1
+	/usr/bin/install -c -m 755 -d ${DESTDIR}/usr/local/share/man/man5
+	/usr/bin/install -c -m 755 -d ${DESTDIR}/usr/local/etc
+	/usr/bin/install -c -m 755 -d ${DESTDIR}/usr/local/share/detox
+	/usr/bin/install -c -m 755 detox ${DESTDIR}/usr/local/bin
+	/usr/bin/install -c -m 755 inline-detox ${DESTDIR}/usr/local/bin
+	/usr/bin/install -c -m 644 detox.1 ${DESTDIR}/usr/local/share/man/man1
+	/usr/bin/install -c -m 644 detoxrc.5 detox.tbl.5 ${DESTDIR}/usr/local/share/man/man5
+
+install-safe-config:
+	@if [ ! -f ${DESTDIR}/usr/local/etc/detoxrc ]; then \
+		/usr/bin/install -c -m 644 detoxrc ${DESTDIR}/usr/local/etc; \
+	else \
+		echo "${DESTDIR}/usr/local/etc/detoxrc exists, skipping"; \
+	fi
+	@if [ ! -f ${DESTDIR}/usr/local/share/detox/iso8859_1.tbl ]; then \
+		/usr/bin/install -c -m 644 iso8859_1.tbl ${DESTDIR}/usr/local/share/detox; \
+	else \
+		echo "${DESTDIR}/usr/local/share/detox/iso8859_1.tbl exists, skipping"; \
+	fi
+	@if [ ! -f ${DESTDIR}/usr/local/share/detox/unicode.tbl ]; then \
+		/usr/bin/install -c -m 644 unicode.tbl ${DESTDIR}/usr/local/share/detox; \
+	else \
+		echo "${DESTDIR}/usr/local/share/detox/unicode.tbl exists, skipping"; \
+	fi
+
+install-unsafe-config:
+	/usr/bin/install -c -m 644 detoxrc ${DESTDIR}/usr/local/etc
+	/usr/bin/install -c -m 644 iso8859_1.tbl ${DESTDIR}/usr/local/share/detox
+	/usr/bin/install -c -m 644 unicode.tbl ${DESTDIR}/usr/local/share/detox
+
+install-sample-config:
+	/usr/bin/install -c -m 644 detoxrc ${DESTDIR}/usr/local/etc/detoxrc.sample
+	/usr/bin/install -c -m 644 iso8859_1.tbl ${DESTDIR}/usr/local/share/detox/iso8859_1.tbl.sample
+	/usr/bin/install -c -m 644 unicode.tbl ${DESTDIR}/usr/local/share/detox/unicode.tbl.sample
+
+uninstall: uninstall-base
+	@echo 'This command doesn''t remove existing configuration'
+	@echo 'files.  Run "make force-uninstall" to remove the'
+	@echo 'live configuration files as well.'
+
+force-uninstall: uninstall-base
+	rm -f ${DESTDIR}/usr/local/etc/detoxrc
+	rm -f ${DESTDIR}/usr/local/share/detox/iso8859_1.tbl
+	rm -f ${DESTDIR}/usr/local/share/detox/unicode.tbl
+	@if [ -d ${DESTDIR}/usr/local/share/detox ]; then \
+		rmdir ${DESTDIR}/usr/local/share/detox; \
+	fi
+
+uninstall-base:
+	rm -f ${DESTDIR}/usr/local/bin/detox
+	rm -f ${DESTDIR}/usr/local/bin/inline-detox
+	rm -f ${DESTDIR}/usr/local/share/man/man1/detox.1*
+	rm -f ${DESTDIR}/usr/local/share/man/man5/detoxrc.5*
+	rm -f ${DESTDIR}/usr/local/share/man/man5/detox.tbl.5*
+	rm -f ${DESTDIR}/usr/local/etc/detoxrc.sample
+	rm -f ${DESTDIR}/usr/local/share/detox/iso8859_1.tbl.sample
+	rm -f ${DESTDIR}/usr/local/share/detox/unicode.tbl.sample
+
+clean:
+	rm -f *.o core *~ a.out *.core
+	rm -f detox
+	rm -f inline-detox
+
+distclean: dist-clean
+
+dist-clean: clean
+	rm -f *.BAK
+	rm -f config.log config.status config.cache
+	rm -f Makefile config.h install.sh
+	rm -f detox_path.h
+	rm -f .depend
+
+maintainer-clean: distclean
+	@echo 'This command is intended for maintainers to use; it'
+	@echo 'deletes files that may need special tools to rebuild.'
+	rm -f config_file_l.c config_file_y.[ch]
+
+distready: config_file_l.c config_file_y.c distclean
+
+dep: depend
+
+depend:
+	mkdep -g -O2 detox.c file.c clean_string.c table.c parse_table.c config_file_l.c config_file_y.c config_file_spoof.c config_file_dump.c parse_options_getopt.c parse_options_generic.c detox-inline.c file-inline.c clean_string.c table.c parse_table.c config_file_l.c config_file_y.c config_file_spoof.c config_file_dump.c parse_options_getopt-inline.c parse_options_generic-inline.c
+
+dummy: 

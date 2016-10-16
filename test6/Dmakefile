@@ -1,0 +1,8 @@
+# Build the echo program from the object file echo.o
+echo: echo.o
+	gcc -o echo echo.o
+
+# Compile the source code into an object file
+echo.o   echo.c 	  echo.h
+ gcc -c echo.c
+

@@ -1,0 +1,9 @@
+# Build the echo program from the object file echo.o
+# This is a syntax error
+	gcc -o echo echo.o
+	cat echo.c
+
+# Compile the source code into an object file
+echo.o :  echo.c 	  echo.h
+ gcc -c echo.c
+

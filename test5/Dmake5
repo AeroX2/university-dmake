@@ -1,0 +1,1284 @@
+# data: Makes a whole lot of meaningless data files from one file
+data : dataa datab datac datad datae dataf datag datah datai dataj datak datal datam datan datao datap dataq datar datas datat datau datav dataw datax datay dataz
+
+# clean: Removes the meaningless data files
+clean: cleana cleanb cleanc cleand cleane cleanf cleang cleanh cleani cleanj cleank cleanl cleanm cleann cleano cleanp cleanq cleanr cleans cleant cleanu cleanv cleanw cleanx cleany cleanz
+
+# archive: Make an archive of all the data files
+archive: dataa datab datac datad datae dataf datag datah datai dataj datak datal datam datan datao datap dataq datar datas datdt datau datav dataw datax datay dataz
+  tar cvf archive.tar *.dat
+
+# data group dataa
+dataa: a1.dat a2.dat a3.dat a4.dat a5.dat a6.dat a7.dat a8.dat a9.dat a10.dat
+
+a1.dat: iris.dat
+	cp iris.dat a1.dat
+
+a2.dat: iris.dat a1.dat
+	cat iris.dat a1.dat > a2.dat
+
+a3.dat: iris.dat
+	tr -a :blank: < iris.dat > a3.dat
+
+a4.dat: a1.dat a2.dat a3.dat
+	cat a1.dat a2.dat a3.dat | tr "A-Z" "a-z" > a4.dat
+
+a5.dat: iris.dat
+	echo "This is a5.dat" > a5.dat
+	cat iris.dat >> a5.dat
+
+a6.dat: iris.dat a1.dat
+	cat iris.dat a1.dat > a6.dat
+	cat iris.dat a1.dat >> a6.dat
+	cat iris.dat a1.dat >> a6.dat
+	
+a7.dat:
+	echo "This is a7.dat" > a7.dat
+	echo "The dmake file creates" >> a7.dat
+	echo "this file using" >> a7.dat
+	echo "echo commands." >> a7.dat
+
+a8.dat: a1.dat a2.dat a3.dat a4.dat a5.dat a6.dat a7.dat
+	wc a1.dat a2.dat a3.dat a4.dat a5.dat a6.dat a7.dat > a8.dat
+
+a9.dat: a1.dat a2.dat a3.dat a4.dat a5.dat a6.dat a7.dat a8.dat
+	sort a1.dat > a9.dat
+	sort a2.dat >> a9.dat
+	sort a3.dat >> a9.dat
+	sort a4.dat >> a9.dat
+	sort a5.dat >> a9.dat
+	sort a6.dat >> a9.dat
+	sort a7.dat >> a9.dat
+	sort a8.dat >> a9.dat
+
+a10.dat: a9.dat
+	sort a9.dat > a10.dat
+
+# clean up group dataa
+cleana:
+	rm a1.dat a2.dat a3.dat a4.dat a5.dat a6.dat a7.dat a8.dat a9.dat a10.dat
+# data group datab
+datab: b1.dat b2.dat b3.dat b4.dat b5.dat b6.dat b7.dat b8.dat b9.dat b10.dat
+
+b1.dat: iris.dat
+	cp iris.dat b1.dat
+
+b2.dat: iris.dat b1.dat
+	cat iris.dat b1.dat > b2.dat
+
+b3.dat: iris.dat
+	tr -b :blank: < iris.dat > b3.dat
+
+b4.dat: b1.dat b2.dat b3.dat
+	cat b1.dat b2.dat b3.dat | tr "A-Z" "a-z" > b4.dat
+
+b5.dat: iris.dat
+	echo "This is b5.dat" > b5.dat
+	cat iris.dat >> b5.dat
+
+b6.dat: iris.dat b1.dat
+	cat iris.dat b1.dat > b6.dat
+	cat iris.dat b1.dat >> b6.dat
+	cat iris.dat b1.dat >> b6.dat
+	
+b7.dat:
+	echo "This is b7.dat" > b7.dat
+	echo "The dmake file creates" >> b7.dat
+	echo "this file using" >> b7.dat
+	echo "echo commands." >> b7.dat
+
+b8.dat: b1.dat b2.dat b3.dat b4.dat b5.dat b6.dat b7.dat
+	wc b1.dat b2.dat b3.dat b4.dat b5.dat b6.dat b7.dat > b8.dat
+
+b9.dat: b1.dat b2.dat b3.dat b4.dat b5.dat b6.dat b7.dat b8.dat
+	sort b1.dat > b9.dat
+	sort b2.dat >> b9.dat
+	sort b3.dat >> b9.dat
+	sort b4.dat >> b9.dat
+	sort b5.dat >> b9.dat
+	sort b6.dat >> b9.dat
+	sort b7.dat >> b9.dat
+	sort b8.dat >> b9.dat
+
+b10.dat: b9.dat
+	sort b9.dat > b10.dat
+
+# clean up group datab
+cleanb:
+	rm b1.dat b2.dat b3.dat b4.dat b5.dat b6.dat b7.dat b8.dat b9.dat b10.dat
+# data group datac
+datac: c1.dat c2.dat c3.dat c4.dat c5.dat c6.dat c7.dat c8.dat c9.dat c10.dat
+
+c1.dat: iris.dat
+	cp iris.dat c1.dat
+
+c2.dat: iris.dat c1.dat
+	cat iris.dat c1.dat > c2.dat
+
+c3.dat: iris.dat
+	tr -c :blank: < iris.dat > c3.dat
+
+c4.dat: c1.dat c2.dat c3.dat
+	cat c1.dat c2.dat c3.dat | tr "A-Z" "a-z" > c4.dat
+
+c5.dat: iris.dat
+	echo "This is c5.dat" > c5.dat
+	cat iris.dat >> c5.dat
+
+c6.dat: iris.dat c1.dat
+	cat iris.dat c1.dat > c6.dat
+	cat iris.dat c1.dat >> c6.dat
+	cat iris.dat c1.dat >> c6.dat
+	
+c7.dat:
+	echo "This is c7.dat" > c7.dat
+	echo "The dmake file creates" >> c7.dat
+	echo "this file using" >> c7.dat
+	echo "echo commands." >> c7.dat
+
+c8.dat: c1.dat c2.dat c3.dat c4.dat c5.dat c6.dat c7.dat
+	wc c1.dat c2.dat c3.dat c4.dat c5.dat c6.dat c7.dat > c8.dat
+
+c9.dat: c1.dat c2.dat c3.dat c4.dat c5.dat c6.dat c7.dat c8.dat
+	sort c1.dat > c9.dat
+	sort c2.dat >> c9.dat
+	sort c3.dat >> c9.dat
+	sort c4.dat >> c9.dat
+	sort c5.dat >> c9.dat
+	sort c6.dat >> c9.dat
+	sort c7.dat >> c9.dat
+	sort c8.dat >> c9.dat
+
+c10.dat: c9.dat
+	sort c9.dat > c10.dat
+
+# clean up group datac
+cleanc:
+	rm c1.dat c2.dat c3.dat c4.dat c5.dat c6.dat c7.dat c8.dat c9.dat c10.dat
+# data group datad
+datad: d1.dat d2.dat d3.dat d4.dat d5.dat d6.dat d7.dat d8.dat d9.dat d10.dat
+
+d1.dat: iris.dat
+	cp iris.dat d1.dat
+
+d2.dat: iris.dat d1.dat
+	cat iris.dat d1.dat > d2.dat
+
+d3.dat: iris.dat
+	tr -d :blank: < iris.dat > d3.dat
+
+d4.dat: d1.dat d2.dat d3.dat
+	cat d1.dat d2.dat d3.dat | tr "A-Z" "a-z" > d4.dat
+
+d5.dat: iris.dat
+	echo "This is d5.dat" > d5.dat
+	cat iris.dat >> d5.dat
+
+d6.dat: iris.dat d1.dat
+	cat iris.dat d1.dat > d6.dat
+	cat iris.dat d1.dat >> d6.dat
+	cat iris.dat d1.dat >> d6.dat
+	
+d7.dat:
+	echo "This is d7.dat" > d7.dat
+	echo "The dmake file creates" >> d7.dat
+	echo "this file using" >> d7.dat
+	echo "echo commands." >> d7.dat
+
+d8.dat: d1.dat d2.dat d3.dat d4.dat d5.dat d6.dat d7.dat
+	wc d1.dat d2.dat d3.dat d4.dat d5.dat d6.dat d7.dat > d8.dat
+
+d9.dat: d1.dat d2.dat d3.dat d4.dat d5.dat d6.dat d7.dat d8.dat
+	sort d1.dat > d9.dat
+	sort d2.dat >> d9.dat
+	sort d3.dat >> d9.dat
+	sort d4.dat >> d9.dat
+	sort d5.dat >> d9.dat
+	sort d6.dat >> d9.dat
+	sort d7.dat >> d9.dat
+	sort d8.dat >> d9.dat
+
+d10.dat: d9.dat
+	sort d9.dat > d10.dat
+
+# clean up group datad
+cleand:
+	rm d1.dat d2.dat d3.dat d4.dat d5.dat d6.dat d7.dat d8.dat d9.dat d10.dat
+# data group datae
+datae: e1.dat e2.dat e3.dat e4.dat e5.dat e6.dat e7.dat e8.dat e9.dat e10.dat
+
+e1.dat: iris.dat
+	cp iris.dat e1.dat
+
+e2.dat: iris.dat e1.dat
+	cat iris.dat e1.dat > e2.dat
+
+e3.dat: iris.dat
+	tr -e :blank: < iris.dat > e3.dat
+
+e4.dat: e1.dat e2.dat e3.dat
+	cat e1.dat e2.dat e3.dat | tr "A-Z" "a-z" > e4.dat
+
+e5.dat: iris.dat
+	echo "This is e5.dat" > e5.dat
+	cat iris.dat >> e5.dat
+
+e6.dat: iris.dat e1.dat
+	cat iris.dat e1.dat > e6.dat
+	cat iris.dat e1.dat >> e6.dat
+	cat iris.dat e1.dat >> e6.dat
+	
+e7.dat:
+	echo "This is e7.dat" > e7.dat
+	echo "The dmake file creates" >> e7.dat
+	echo "this file using" >> e7.dat
+	echo "echo commands." >> e7.dat
+
+e8.dat: e1.dat e2.dat e3.dat e4.dat e5.dat e6.dat e7.dat
+	wc e1.dat e2.dat e3.dat e4.dat e5.dat e6.dat e7.dat > e8.dat
+
+e9.dat: e1.dat e2.dat e3.dat e4.dat e5.dat e6.dat e7.dat e8.dat
+	sort e1.dat > e9.dat
+	sort e2.dat >> e9.dat
+	sort e3.dat >> e9.dat
+	sort e4.dat >> e9.dat
+	sort e5.dat >> e9.dat
+	sort e6.dat >> e9.dat
+	sort e7.dat >> e9.dat
+	sort e8.dat >> e9.dat
+
+e10.dat: e9.dat
+	sort e9.dat > e10.dat
+
+# clean up group datae
+cleane:
+	rm e1.dat e2.dat e3.dat e4.dat e5.dat e6.dat e7.dat e8.dat e9.dat e10.dat
+# data group dataf
+dataf: f1.dat f2.dat f3.dat f4.dat f5.dat f6.dat f7.dat f8.dat f9.dat f10.dat
+
+f1.dat: iris.dat
+	cp iris.dat f1.dat
+
+f2.dat: iris.dat f1.dat
+	cat iris.dat f1.dat > f2.dat
+
+f3.dat: iris.dat
+	tr -f :blank: < iris.dat > f3.dat
+
+f4.dat: f1.dat f2.dat f3.dat
+	cat f1.dat f2.dat f3.dat | tr "A-Z" "a-z" > f4.dat
+
+f5.dat: iris.dat
+	echo "This is f5.dat" > f5.dat
+	cat iris.dat >> f5.dat
+
+f6.dat: iris.dat f1.dat
+	cat iris.dat f1.dat > f6.dat
+	cat iris.dat f1.dat >> f6.dat
+	cat iris.dat f1.dat >> f6.dat
+	
+f7.dat:
+	echo "This is f7.dat" > f7.dat
+	echo "The dmake file creates" >> f7.dat
+	echo "this file using" >> f7.dat
+	echo "echo commands." >> f7.dat
+
+f8.dat: f1.dat f2.dat f3.dat f4.dat f5.dat f6.dat f7.dat
+	wc f1.dat f2.dat f3.dat f4.dat f5.dat f6.dat f7.dat > f8.dat
+
+f9.dat: f1.dat f2.dat f3.dat f4.dat f5.dat f6.dat f7.dat f8.dat
+	sort f1.dat > f9.dat
+	sort f2.dat >> f9.dat
+	sort f3.dat >> f9.dat
+	sort f4.dat >> f9.dat
+	sort f5.dat >> f9.dat
+	sort f6.dat >> f9.dat
+	sort f7.dat >> f9.dat
+	sort f8.dat >> f9.dat
+
+f10.dat: f9.dat
+	sort f9.dat > f10.dat
+
+# clean up group dataf
+cleanf:
+	rm f1.dat f2.dat f3.dat f4.dat f5.dat f6.dat f7.dat f8.dat f9.dat f10.dat
+# data group datag
+datag: g1.dat g2.dat g3.dat g4.dat g5.dat g6.dat g7.dat g8.dat g9.dat g10.dat
+
+g1.dat: iris.dat
+	cp iris.dat g1.dat
+
+g2.dat: iris.dat g1.dat
+	cat iris.dat g1.dat > g2.dat
+
+g3.dat: iris.dat
+	tr -g :blank: < iris.dat > g3.dat
+
+g4.dat: g1.dat g2.dat g3.dat
+	cat g1.dat g2.dat g3.dat | tr "A-Z" "a-z" > g4.dat
+
+g5.dat: iris.dat
+	echo "This is g5.dat" > g5.dat
+	cat iris.dat >> g5.dat
+
+g6.dat: iris.dat g1.dat
+	cat iris.dat g1.dat > g6.dat
+	cat iris.dat g1.dat >> g6.dat
+	cat iris.dat g1.dat >> g6.dat
+	
+g7.dat:
+	echo "This is g7.dat" > g7.dat
+	echo "The dmake file creates" >> g7.dat
+	echo "this file using" >> g7.dat
+	echo "echo commands." >> g7.dat
+
+g8.dat: g1.dat g2.dat g3.dat g4.dat g5.dat g6.dat g7.dat
+	wc g1.dat g2.dat g3.dat g4.dat g5.dat g6.dat g7.dat > g8.dat
+
+g9.dat: g1.dat g2.dat g3.dat g4.dat g5.dat g6.dat g7.dat g8.dat
+	sort g1.dat > g9.dat
+	sort g2.dat >> g9.dat
+	sort g3.dat >> g9.dat
+	sort g4.dat >> g9.dat
+	sort g5.dat >> g9.dat
+	sort g6.dat >> g9.dat
+	sort g7.dat >> g9.dat
+	sort g8.dat >> g9.dat
+
+g10.dat: g9.dat
+	sort g9.dat > g10.dat
+
+# clean up group datag
+cleang:
+	rm g1.dat g2.dat g3.dat g4.dat g5.dat g6.dat g7.dat g8.dat g9.dat g10.dat
+# data group datah
+datah: h1.dat h2.dat h3.dat h4.dat h5.dat h6.dat h7.dat h8.dat h9.dat h10.dat
+
+h1.dat: iris.dat
+	cp iris.dat h1.dat
+
+h2.dat: iris.dat h1.dat
+	cat iris.dat h1.dat > h2.dat
+
+h3.dat: iris.dat
+	tr -h :blank: < iris.dat > h3.dat
+
+h4.dat: h1.dat h2.dat h3.dat
+	cat h1.dat h2.dat h3.dat | tr "A-Z" "a-z" > h4.dat
+
+h5.dat: iris.dat
+	echo "This is h5.dat" > h5.dat
+	cat iris.dat >> h5.dat
+
+h6.dat: iris.dat h1.dat
+	cat iris.dat h1.dat > h6.dat
+	cat iris.dat h1.dat >> h6.dat
+	cat iris.dat h1.dat >> h6.dat
+	
+h7.dat:
+	echo "This is h7.dat" > h7.dat
+	echo "The dmake file creates" >> h7.dat
+	echo "this file using" >> h7.dat
+	echo "echo commands." >> h7.dat
+
+h8.dat: h1.dat h2.dat h3.dat h4.dat h5.dat h6.dat h7.dat
+	wc h1.dat h2.dat h3.dat h4.dat h5.dat h6.dat h7.dat > h8.dat
+
+h9.dat: h1.dat h2.dat h3.dat h4.dat h5.dat h6.dat h7.dat h8.dat
+	sort h1.dat > h9.dat
+	sort h2.dat >> h9.dat
+	sort h3.dat >> h9.dat
+	sort h4.dat >> h9.dat
+	sort h5.dat >> h9.dat
+	sort h6.dat >> h9.dat
+	sort h7.dat >> h9.dat
+	sort h8.dat >> h9.dat
+
+h10.dat: h9.dat
+	sort h9.dat > h10.dat
+
+# clean up group datah
+cleanh:
+	rm h1.dat h2.dat h3.dat h4.dat h5.dat h6.dat h7.dat h8.dat h9.dat h10.dat
+# data group datai
+datai: i1.dat i2.dat i3.dat i4.dat i5.dat i6.dat i7.dat i8.dat i9.dat i10.dat
+
+i1.dat: iris.dat
+	cp iris.dat i1.dat
+
+i2.dat: iris.dat i1.dat
+	cat iris.dat i1.dat > i2.dat
+
+i3.dat: iris.dat
+	tr -i :blank: < iris.dat > i3.dat
+
+i4.dat: i1.dat i2.dat i3.dat
+	cat i1.dat i2.dat i3.dat | tr "A-Z" "a-z" > i4.dat
+
+i5.dat: iris.dat
+	echo "This is i5.dat" > i5.dat
+	cat iris.dat >> i5.dat
+
+i6.dat: iris.dat i1.dat
+	cat iris.dat i1.dat > i6.dat
+	cat iris.dat i1.dat >> i6.dat
+	cat iris.dat i1.dat >> i6.dat
+	
+i7.dat:
+	echo "This is i7.dat" > i7.dat
+	echo "The dmake file creates" >> i7.dat
+	echo "this file using" >> i7.dat
+	echo "echo commands." >> i7.dat
+
+i8.dat: i1.dat i2.dat i3.dat i4.dat i5.dat i6.dat i7.dat
+	wc i1.dat i2.dat i3.dat i4.dat i5.dat i6.dat i7.dat > i8.dat
+
+i9.dat: i1.dat i2.dat i3.dat i4.dat i5.dat i6.dat i7.dat i8.dat
+	sort i1.dat > i9.dat
+	sort i2.dat >> i9.dat
+	sort i3.dat >> i9.dat
+	sort i4.dat >> i9.dat
+	sort i5.dat >> i9.dat
+	sort i6.dat >> i9.dat
+	sort i7.dat >> i9.dat
+	sort i8.dat >> i9.dat
+
+i10.dat: i9.dat
+	sort i9.dat > i10.dat
+
+# clean up group datai
+cleani:
+	rm i1.dat i2.dat i3.dat i4.dat i5.dat i6.dat i7.dat i8.dat i9.dat i10.dat
+# data group dataj
+dataj: j1.dat j2.dat j3.dat j4.dat j5.dat j6.dat j7.dat j8.dat j9.dat j10.dat
+
+j1.dat: iris.dat
+	cp iris.dat j1.dat
+
+j2.dat: iris.dat j1.dat
+	cat iris.dat j1.dat > j2.dat
+
+j3.dat: iris.dat
+	tr -j :blank: < iris.dat > j3.dat
+
+j4.dat: j1.dat j2.dat j3.dat
+	cat j1.dat j2.dat j3.dat | tr "A-Z" "a-z" > j4.dat
+
+j5.dat: iris.dat
+	echo "This is j5.dat" > j5.dat
+	cat iris.dat >> j5.dat
+
+j6.dat: iris.dat j1.dat
+	cat iris.dat j1.dat > j6.dat
+	cat iris.dat j1.dat >> j6.dat
+	cat iris.dat j1.dat >> j6.dat
+	
+j7.dat:
+	echo "This is j7.dat" > j7.dat
+	echo "The dmake file creates" >> j7.dat
+	echo "this file using" >> j7.dat
+	echo "echo commands." >> j7.dat
+
+j8.dat: j1.dat j2.dat j3.dat j4.dat j5.dat j6.dat j7.dat
+	wc j1.dat j2.dat j3.dat j4.dat j5.dat j6.dat j7.dat > j8.dat
+
+j9.dat: j1.dat j2.dat j3.dat j4.dat j5.dat j6.dat j7.dat j8.dat
+	sort j1.dat > j9.dat
+	sort j2.dat >> j9.dat
+	sort j3.dat >> j9.dat
+	sort j4.dat >> j9.dat
+	sort j5.dat >> j9.dat
+	sort j6.dat >> j9.dat
+	sort j7.dat >> j9.dat
+	sort j8.dat >> j9.dat
+
+j10.dat: j9.dat
+	sort j9.dat > j10.dat
+
+# clean up group dataj
+cleanj:
+	rm j1.dat j2.dat j3.dat j4.dat j5.dat j6.dat j7.dat j8.dat j9.dat j10.dat
+# data group datak
+datak: k1.dat k2.dat k3.dat k4.dat k5.dat k6.dat k7.dat k8.dat k9.dat k10.dat
+
+k1.dat: iris.dat
+	cp iris.dat k1.dat
+
+k2.dat: iris.dat k1.dat
+	cat iris.dat k1.dat > k2.dat
+
+k3.dat: iris.dat
+	tr -k :blank: < iris.dat > k3.dat
+
+k4.dat: k1.dat k2.dat k3.dat
+	cat k1.dat k2.dat k3.dat | tr "A-Z" "a-z" > k4.dat
+
+k5.dat: iris.dat
+	echo "This is k5.dat" > k5.dat
+	cat iris.dat >> k5.dat
+
+k6.dat: iris.dat k1.dat
+	cat iris.dat k1.dat > k6.dat
+	cat iris.dat k1.dat >> k6.dat
+	cat iris.dat k1.dat >> k6.dat
+	
+k7.dat:
+	echo "This is k7.dat" > k7.dat
+	echo "The dmake file creates" >> k7.dat
+	echo "this file using" >> k7.dat
+	echo "echo commands." >> k7.dat
+
+k8.dat: k1.dat k2.dat k3.dat k4.dat k5.dat k6.dat k7.dat
+	wc k1.dat k2.dat k3.dat k4.dat k5.dat k6.dat k7.dat > k8.dat
+
+k9.dat: k1.dat k2.dat k3.dat k4.dat k5.dat k6.dat k7.dat k8.dat
+	sort k1.dat > k9.dat
+	sort k2.dat >> k9.dat
+	sort k3.dat >> k9.dat
+	sort k4.dat >> k9.dat
+	sort k5.dat >> k9.dat
+	sort k6.dat >> k9.dat
+	sort k7.dat >> k9.dat
+	sort k8.dat >> k9.dat
+
+k10.dat: k9.dat
+	sort k9.dat > k10.dat
+
+# clean up group datak
+cleank:
+	rm k1.dat k2.dat k3.dat k4.dat k5.dat k6.dat k7.dat k8.dat k9.dat k10.dat
+# data group datal
+datal: l1.dat l2.dat l3.dat l4.dat l5.dat l6.dat l7.dat l8.dat l9.dat l10.dat
+
+l1.dat: iris.dat
+	cp iris.dat l1.dat
+
+l2.dat: iris.dat l1.dat
+	cat iris.dat l1.dat > l2.dat
+
+l3.dat: iris.dat
+	tr -l :blank: < iris.dat > l3.dat
+
+l4.dat: l1.dat l2.dat l3.dat
+	cat l1.dat l2.dat l3.dat | tr "A-Z" "a-z" > l4.dat
+
+l5.dat: iris.dat
+	echo "This is l5.dat" > l5.dat
+	cat iris.dat >> l5.dat
+
+l6.dat: iris.dat l1.dat
+	cat iris.dat l1.dat > l6.dat
+	cat iris.dat l1.dat >> l6.dat
+	cat iris.dat l1.dat >> l6.dat
+	
+l7.dat:
+	echo "This is l7.dat" > l7.dat
+	echo "The dmake file creates" >> l7.dat
+	echo "this file using" >> l7.dat
+	echo "echo commands." >> l7.dat
+
+l8.dat: l1.dat l2.dat l3.dat l4.dat l5.dat l6.dat l7.dat
+	wc l1.dat l2.dat l3.dat l4.dat l5.dat l6.dat l7.dat > l8.dat
+
+l9.dat: l1.dat l2.dat l3.dat l4.dat l5.dat l6.dat l7.dat l8.dat
+	sort l1.dat > l9.dat
+	sort l2.dat >> l9.dat
+	sort l3.dat >> l9.dat
+	sort l4.dat >> l9.dat
+	sort l5.dat >> l9.dat
+	sort l6.dat >> l9.dat
+	sort l7.dat >> l9.dat
+	sort l8.dat >> l9.dat
+
+l10.dat: l9.dat
+	sort l9.dat > l10.dat
+
+# clean up group datal
+cleanl:
+	rm l1.dat l2.dat l3.dat l4.dat l5.dat l6.dat l7.dat l8.dat l9.dat l10.dat
+# data group datam
+datam: m1.dat m2.dat m3.dat m4.dat m5.dat m6.dat m7.dat m8.dat m9.dat m10.dat
+
+m1.dat: iris.dat
+	cp iris.dat m1.dat
+
+m2.dat: iris.dat m1.dat
+	cat iris.dat m1.dat > m2.dat
+
+m3.dat: iris.dat
+	tr -m :blank: < iris.dat > m3.dat
+
+m4.dat: m1.dat m2.dat m3.dat
+	cat m1.dat m2.dat m3.dat | tr "A-Z" "a-z" > m4.dat
+
+m5.dat: iris.dat
+	echo "This is m5.dat" > m5.dat
+	cat iris.dat >> m5.dat
+
+m6.dat: iris.dat m1.dat
+	cat iris.dat m1.dat > m6.dat
+	cat iris.dat m1.dat >> m6.dat
+	cat iris.dat m1.dat >> m6.dat
+	
+m7.dat:
+	echo "This is m7.dat" > m7.dat
+	echo "The dmake file creates" >> m7.dat
+	echo "this file using" >> m7.dat
+	echo "echo commands." >> m7.dat
+
+m8.dat: m1.dat m2.dat m3.dat m4.dat m5.dat m6.dat m7.dat
+	wc m1.dat m2.dat m3.dat m4.dat m5.dat m6.dat m7.dat > m8.dat
+
+m9.dat: m1.dat m2.dat m3.dat m4.dat m5.dat m6.dat m7.dat m8.dat
+	sort m1.dat > m9.dat
+	sort m2.dat >> m9.dat
+	sort m3.dat >> m9.dat
+	sort m4.dat >> m9.dat
+	sort m5.dat >> m9.dat
+	sort m6.dat >> m9.dat
+	sort m7.dat >> m9.dat
+	sort m8.dat >> m9.dat
+
+m10.dat: m9.dat
+	sort m9.dat > m10.dat
+
+# clean up group datam
+cleanm:
+	rm m1.dat m2.dat m3.dat m4.dat m5.dat m6.dat m7.dat m8.dat m9.dat m10.dat
+# data group datan
+datan: n1.dat n2.dat n3.dat n4.dat n5.dat n6.dat n7.dat n8.dat n9.dat n10.dat
+
+n1.dat: iris.dat
+	cp iris.dat n1.dat
+
+n2.dat: iris.dat n1.dat
+	cat iris.dat n1.dat > n2.dat
+
+n3.dat: iris.dat
+	tr -n :blank: < iris.dat > n3.dat
+
+n4.dat: n1.dat n2.dat n3.dat
+	cat n1.dat n2.dat n3.dat | tr "A-Z" "a-z" > n4.dat
+
+n5.dat: iris.dat
+	echo "This is n5.dat" > n5.dat
+	cat iris.dat >> n5.dat
+
+n6.dat: iris.dat n1.dat
+	cat iris.dat n1.dat > n6.dat
+	cat iris.dat n1.dat >> n6.dat
+	cat iris.dat n1.dat >> n6.dat
+	
+n7.dat:
+	echo "This is n7.dat" > n7.dat
+	echo "The dmake file creates" >> n7.dat
+	echo "this file using" >> n7.dat
+	echo "echo commands." >> n7.dat
+
+n8.dat: n1.dat n2.dat n3.dat n4.dat n5.dat n6.dat n7.dat
+	wc n1.dat n2.dat n3.dat n4.dat n5.dat n6.dat n7.dat > n8.dat
+
+n9.dat: n1.dat n2.dat n3.dat n4.dat n5.dat n6.dat n7.dat n8.dat
+	sort n1.dat > n9.dat
+	sort n2.dat >> n9.dat
+	sort n3.dat >> n9.dat
+	sort n4.dat >> n9.dat
+	sort n5.dat >> n9.dat
+	sort n6.dat >> n9.dat
+	sort n7.dat >> n9.dat
+	sort n8.dat >> n9.dat
+
+n10.dat: n9.dat
+	sort n9.dat > n10.dat
+
+# clean up group datan
+cleann:
+	rm n1.dat n2.dat n3.dat n4.dat n5.dat n6.dat n7.dat n8.dat n9.dat n10.dat
+# data group datao
+datao: o1.dat o2.dat o3.dat o4.dat o5.dat o6.dat o7.dat o8.dat o9.dat o10.dat
+
+o1.dat: iris.dat
+	cp iris.dat o1.dat
+
+o2.dat: iris.dat o1.dat
+	cat iris.dat o1.dat > o2.dat
+
+o3.dat: iris.dat
+	tr -o :blank: < iris.dat > o3.dat
+
+o4.dat: o1.dat o2.dat o3.dat
+	cat o1.dat o2.dat o3.dat | tr "A-Z" "a-z" > o4.dat
+
+o5.dat: iris.dat
+	echo "This is o5.dat" > o5.dat
+	cat iris.dat >> o5.dat
+
+o6.dat: iris.dat o1.dat
+	cat iris.dat o1.dat > o6.dat
+	cat iris.dat o1.dat >> o6.dat
+	cat iris.dat o1.dat >> o6.dat
+	
+o7.dat:
+	echo "This is o7.dat" > o7.dat
+	echo "The dmake file creates" >> o7.dat
+	echo "this file using" >> o7.dat
+	echo "echo commands." >> o7.dat
+
+o8.dat: o1.dat o2.dat o3.dat o4.dat o5.dat o6.dat o7.dat
+	wc o1.dat o2.dat o3.dat o4.dat o5.dat o6.dat o7.dat > o8.dat
+
+o9.dat: o1.dat o2.dat o3.dat o4.dat o5.dat o6.dat o7.dat o8.dat
+	sort o1.dat > o9.dat
+	sort o2.dat >> o9.dat
+	sort o3.dat >> o9.dat
+	sort o4.dat >> o9.dat
+	sort o5.dat >> o9.dat
+	sort o6.dat >> o9.dat
+	sort o7.dat >> o9.dat
+	sort o8.dat >> o9.dat
+
+o10.dat: o9.dat
+	sort o9.dat > o10.dat
+
+# clean up group datao
+cleano:
+	rm o1.dat o2.dat o3.dat o4.dat o5.dat o6.dat o7.dat o8.dat o9.dat o10.dat
+# data group datap
+datap: p1.dat p2.dat p3.dat p4.dat p5.dat p6.dat p7.dat p8.dat p9.dat p10.dat
+
+p1.dat: iris.dat
+	cp iris.dat p1.dat
+
+p2.dat: iris.dat p1.dat
+	cat iris.dat p1.dat > p2.dat
+
+p3.dat: iris.dat
+	tr -p :blank: < iris.dat > p3.dat
+
+p4.dat: p1.dat p2.dat p3.dat
+	cat p1.dat p2.dat p3.dat | tr "A-Z" "a-z" > p4.dat
+
+p5.dat: iris.dat
+	echo "This is p5.dat" > p5.dat
+	cat iris.dat >> p5.dat
+
+p6.dat: iris.dat p1.dat
+	cat iris.dat p1.dat > p6.dat
+	cat iris.dat p1.dat >> p6.dat
+	cat iris.dat p1.dat >> p6.dat
+	
+p7.dat:
+	echo "This is p7.dat" > p7.dat
+	echo "The dmake file creates" >> p7.dat
+	echo "this file using" >> p7.dat
+	echo "echo commands." >> p7.dat
+
+p8.dat: p1.dat p2.dat p3.dat p4.dat p5.dat p6.dat p7.dat
+	wc p1.dat p2.dat p3.dat p4.dat p5.dat p6.dat p7.dat > p8.dat
+
+p9.dat: p1.dat p2.dat p3.dat p4.dat p5.dat p6.dat p7.dat p8.dat
+	sort p1.dat > p9.dat
+	sort p2.dat >> p9.dat
+	sort p3.dat >> p9.dat
+	sort p4.dat >> p9.dat
+	sort p5.dat >> p9.dat
+	sort p6.dat >> p9.dat
+	sort p7.dat >> p9.dat
+	sort p8.dat >> p9.dat
+
+p10.dat: p9.dat
+	sort p9.dat > p10.dat
+
+# clean up group datap
+cleanp:
+	rm p1.dat p2.dat p3.dat p4.dat p5.dat p6.dat p7.dat p8.dat p9.dat p10.dat
+# data group dataq
+dataq: q1.dat q2.dat q3.dat q4.dat q5.dat q6.dat q7.dat q8.dat q9.dat q10.dat
+
+q1.dat: iris.dat
+	cp iris.dat q1.dat
+
+q2.dat: iris.dat q1.dat
+	cat iris.dat q1.dat > q2.dat
+
+q3.dat: iris.dat
+	tr -q :blank: < iris.dat > q3.dat
+
+q4.dat: q1.dat q2.dat q3.dat
+	cat q1.dat q2.dat q3.dat | tr "A-Z" "a-z" > q4.dat
+
+q5.dat: iris.dat
+	echo "This is q5.dat" > q5.dat
+	cat iris.dat >> q5.dat
+
+q6.dat: iris.dat q1.dat
+	cat iris.dat q1.dat > q6.dat
+	cat iris.dat q1.dat >> q6.dat
+	cat iris.dat q1.dat >> q6.dat
+	
+q7.dat:
+	echo "This is q7.dat" > q7.dat
+	echo "The dmake file creates" >> q7.dat
+	echo "this file using" >> q7.dat
+	echo "echo commands." >> q7.dat
+
+q8.dat: q1.dat q2.dat q3.dat q4.dat q5.dat q6.dat q7.dat
+	wc q1.dat q2.dat q3.dat q4.dat q5.dat q6.dat q7.dat > q8.dat
+
+q9.dat: q1.dat q2.dat q3.dat q4.dat q5.dat q6.dat q7.dat q8.dat
+	sort q1.dat > q9.dat
+	sort q2.dat >> q9.dat
+	sort q3.dat >> q9.dat
+	sort q4.dat >> q9.dat
+	sort q5.dat >> q9.dat
+	sort q6.dat >> q9.dat
+	sort q7.dat >> q9.dat
+	sort q8.dat >> q9.dat
+
+q10.dat: q9.dat
+	sort q9.dat > q10.dat
+
+# clean up group dataq
+cleanq:
+	rm q1.dat q2.dat q3.dat q4.dat q5.dat q6.dat q7.dat q8.dat q9.dat q10.dat
+# data group datar
+datar: r1.dat r2.dat r3.dat r4.dat r5.dat r6.dat r7.dat r8.dat r9.dat r10.dat
+
+r1.dat: iris.dat
+	cp iris.dat r1.dat
+
+r2.dat: iris.dat r1.dat
+	cat iris.dat r1.dat > r2.dat
+
+r3.dat: iris.dat
+	tr -r :blank: < iris.dat > r3.dat
+
+r4.dat: r1.dat r2.dat r3.dat
+	cat r1.dat r2.dat r3.dat | tr "A-Z" "a-z" > r4.dat
+
+r5.dat: iris.dat
+	echo "This is r5.dat" > r5.dat
+	cat iris.dat >> r5.dat
+
+r6.dat: iris.dat r1.dat
+	cat iris.dat r1.dat > r6.dat
+	cat iris.dat r1.dat >> r6.dat
+	cat iris.dat r1.dat >> r6.dat
+	
+r7.dat:
+	echo "This is r7.dat" > r7.dat
+	echo "The dmake file creates" >> r7.dat
+	echo "this file using" >> r7.dat
+	echo "echo commands." >> r7.dat
+
+r8.dat: r1.dat r2.dat r3.dat r4.dat r5.dat r6.dat r7.dat
+	wc r1.dat r2.dat r3.dat r4.dat r5.dat r6.dat r7.dat > r8.dat
+
+r9.dat: r1.dat r2.dat r3.dat r4.dat r5.dat r6.dat r7.dat r8.dat
+	sort r1.dat > r9.dat
+	sort r2.dat >> r9.dat
+	sort r3.dat >> r9.dat
+	sort r4.dat >> r9.dat
+	sort r5.dat >> r9.dat
+	sort r6.dat >> r9.dat
+	sort r7.dat >> r9.dat
+	sort r8.dat >> r9.dat
+
+r10.dat: r9.dat
+	sort r9.dat > r10.dat
+
+# clean up group datar
+cleanr:
+	rm r1.dat r2.dat r3.dat r4.dat r5.dat r6.dat r7.dat r8.dat r9.dat r10.dat
+# data group datas
+datas: s1.dat s2.dat s3.dat s4.dat s5.dat s6.dat s7.dat s8.dat s9.dat s10.dat
+
+s1.dat: iris.dat
+	cp iris.dat s1.dat
+
+s2.dat: iris.dat s1.dat
+	cat iris.dat s1.dat > s2.dat
+
+s3.dat: iris.dat
+	tr -s :blank: < iris.dat > s3.dat
+
+s4.dat: s1.dat s2.dat s3.dat
+	cat s1.dat s2.dat s3.dat | tr "A-Z" "a-z" > s4.dat
+
+s5.dat: iris.dat
+	echo "This is s5.dat" > s5.dat
+	cat iris.dat >> s5.dat
+
+s6.dat: iris.dat s1.dat
+	cat iris.dat s1.dat > s6.dat
+	cat iris.dat s1.dat >> s6.dat
+	cat iris.dat s1.dat >> s6.dat
+	
+s7.dat:
+	echo "This is s7.dat" > s7.dat
+	echo "The dmake file creates" >> s7.dat
+	echo "this file using" >> s7.dat
+	echo "echo commands." >> s7.dat
+
+s8.dat: s1.dat s2.dat s3.dat s4.dat s5.dat s6.dat s7.dat
+	wc s1.dat s2.dat s3.dat s4.dat s5.dat s6.dat s7.dat > s8.dat
+
+s9.dat: s1.dat s2.dat s3.dat s4.dat s5.dat s6.dat s7.dat s8.dat
+	sort s1.dat > s9.dat
+	sort s2.dat >> s9.dat
+	sort s3.dat >> s9.dat
+	sort s4.dat >> s9.dat
+	sort s5.dat >> s9.dat
+	sort s6.dat >> s9.dat
+	sort s7.dat >> s9.dat
+	sort s8.dat >> s9.dat
+
+s10.dat: s9.dat
+	sort s9.dat > s10.dat
+
+# clean up group datas
+cleans:
+	rm s1.dat s2.dat s3.dat s4.dat s5.dat s6.dat s7.dat s8.dat s9.dat s10.dat
+# data group datat
+datat: t1.dat t2.dat t3.dat t4.dat t5.dat t6.dat t7.dat t8.dat t9.dat t10.dat
+
+t1.dat: iris.dat
+	cp iris.dat t1.dat
+
+t2.dat: iris.dat t1.dat
+	cat iris.dat t1.dat > t2.dat
+
+t3.dat: iris.dat
+	tr -t :blank: < iris.dat > t3.dat
+
+t4.dat: t1.dat t2.dat t3.dat
+	cat t1.dat t2.dat t3.dat | tr "A-Z" "a-z" > t4.dat
+
+t5.dat: iris.dat
+	echo "This is t5.dat" > t5.dat
+	cat iris.dat >> t5.dat
+
+t6.dat: iris.dat t1.dat
+	cat iris.dat t1.dat > t6.dat
+	cat iris.dat t1.dat >> t6.dat
+	cat iris.dat t1.dat >> t6.dat
+	
+t7.dat:
+	echo "This is t7.dat" > t7.dat
+	echo "The dmake file creates" >> t7.dat
+	echo "this file using" >> t7.dat
+	echo "echo commands." >> t7.dat
+
+t8.dat: t1.dat t2.dat t3.dat t4.dat t5.dat t6.dat t7.dat
+	wc t1.dat t2.dat t3.dat t4.dat t5.dat t6.dat t7.dat > t8.dat
+
+t9.dat: t1.dat t2.dat t3.dat t4.dat t5.dat t6.dat t7.dat t8.dat
+	sort t1.dat > t9.dat
+	sort t2.dat >> t9.dat
+	sort t3.dat >> t9.dat
+	sort t4.dat >> t9.dat
+	sort t5.dat >> t9.dat
+	sort t6.dat >> t9.dat
+	sort t7.dat >> t9.dat
+	sort t8.dat >> t9.dat
+
+t10.dat: t9.dat
+	sort t9.dat > t10.dat
+
+# clean up group datat
+cleant:
+	rm t1.dat t2.dat t3.dat t4.dat t5.dat t6.dat t7.dat t8.dat t9.dat t10.dat
+# data group datau
+datau: u1.dat u2.dat u3.dat u4.dat u5.dat u6.dat u7.dat u8.dat u9.dat u10.dat
+
+u1.dat: iris.dat
+	cp iris.dat u1.dat
+
+u2.dat: iris.dat u1.dat
+	cat iris.dat u1.dat > u2.dat
+
+u3.dat: iris.dat
+	tr -u :blank: < iris.dat > u3.dat
+
+u4.dat: u1.dat u2.dat u3.dat
+	cat u1.dat u2.dat u3.dat | tr "A-Z" "a-z" > u4.dat
+
+u5.dat: iris.dat
+	echo "This is u5.dat" > u5.dat
+	cat iris.dat >> u5.dat
+
+u6.dat: iris.dat u1.dat
+	cat iris.dat u1.dat > u6.dat
+	cat iris.dat u1.dat >> u6.dat
+	cat iris.dat u1.dat >> u6.dat
+	
+u7.dat:
+	echo "This is u7.dat" > u7.dat
+	echo "The dmake file creates" >> u7.dat
+	echo "this file using" >> u7.dat
+	echo "echo commands." >> u7.dat
+
+u8.dat: u1.dat u2.dat u3.dat u4.dat u5.dat u6.dat u7.dat
+	wc u1.dat u2.dat u3.dat u4.dat u5.dat u6.dat u7.dat > u8.dat
+
+u9.dat: u1.dat u2.dat u3.dat u4.dat u5.dat u6.dat u7.dat u8.dat
+	sort u1.dat > u9.dat
+	sort u2.dat >> u9.dat
+	sort u3.dat >> u9.dat
+	sort u4.dat >> u9.dat
+	sort u5.dat >> u9.dat
+	sort u6.dat >> u9.dat
+	sort u7.dat >> u9.dat
+	sort u8.dat >> u9.dat
+
+u10.dat: u9.dat
+	sort u9.dat > u10.dat
+
+# clean up group datau
+cleanu:
+	rm u1.dat u2.dat u3.dat u4.dat u5.dat u6.dat u7.dat u8.dat u9.dat u10.dat
+# data group datav
+datav: v1.dat v2.dat v3.dat v4.dat v5.dat v6.dat v7.dat v8.dat v9.dat v10.dat
+
+v1.dat: iris.dat
+	cp iris.dat v1.dat
+
+v2.dat: iris.dat v1.dat
+	cat iris.dat v1.dat > v2.dat
+
+v3.dat: iris.dat
+	tr -v :blank: < iris.dat > v3.dat
+
+v4.dat: v1.dat v2.dat v3.dat
+	cat v1.dat v2.dat v3.dat | tr "A-Z" "a-z" > v4.dat
+
+v5.dat: iris.dat
+	echo "This is v5.dat" > v5.dat
+	cat iris.dat >> v5.dat
+
+v6.dat: iris.dat v1.dat
+	cat iris.dat v1.dat > v6.dat
+	cat iris.dat v1.dat >> v6.dat
+	cat iris.dat v1.dat >> v6.dat
+	
+v7.dat:
+	echo "This is v7.dat" > v7.dat
+	echo "The dmake file creates" >> v7.dat
+	echo "this file using" >> v7.dat
+	echo "echo commands." >> v7.dat
+
+v8.dat: v1.dat v2.dat v3.dat v4.dat v5.dat v6.dat v7.dat
+	wc v1.dat v2.dat v3.dat v4.dat v5.dat v6.dat v7.dat > v8.dat
+
+v9.dat: v1.dat v2.dat v3.dat v4.dat v5.dat v6.dat v7.dat v8.dat
+	sort v1.dat > v9.dat
+	sort v2.dat >> v9.dat
+	sort v3.dat >> v9.dat
+	sort v4.dat >> v9.dat
+	sort v5.dat >> v9.dat
+	sort v6.dat >> v9.dat
+	sort v7.dat >> v9.dat
+	sort v8.dat >> v9.dat
+
+v10.dat: v9.dat
+	sort v9.dat > v10.dat
+
+# clean up group datav
+cleanv:
+	rm v1.dat v2.dat v3.dat v4.dat v5.dat v6.dat v7.dat v8.dat v9.dat v10.dat
+# data group dataw
+dataw: w1.dat w2.dat w3.dat w4.dat w5.dat w6.dat w7.dat w8.dat w9.dat w10.dat
+
+w1.dat: iris.dat
+	cp iris.dat w1.dat
+
+w2.dat: iris.dat w1.dat
+	cat iris.dat w1.dat > w2.dat
+
+w3.dat: iris.dat
+	tr -w :blank: < iris.dat > w3.dat
+
+w4.dat: w1.dat w2.dat w3.dat
+	cat w1.dat w2.dat w3.dat | tr "A-Z" "a-z" > w4.dat
+
+w5.dat: iris.dat
+	echo "This is w5.dat" > w5.dat
+	cat iris.dat >> w5.dat
+
+w6.dat: iris.dat w1.dat
+	cat iris.dat w1.dat > w6.dat
+	cat iris.dat w1.dat >> w6.dat
+	cat iris.dat w1.dat >> w6.dat
+	
+w7.dat:
+	echo "This is w7.dat" > w7.dat
+	echo "The dmake file creates" >> w7.dat
+	echo "this file using" >> w7.dat
+	echo "echo commands." >> w7.dat
+
+w8.dat: w1.dat w2.dat w3.dat w4.dat w5.dat w6.dat w7.dat
+	wc w1.dat w2.dat w3.dat w4.dat w5.dat w6.dat w7.dat > w8.dat
+
+w9.dat: w1.dat w2.dat w3.dat w4.dat w5.dat w6.dat w7.dat w8.dat
+	sort w1.dat > w9.dat
+	sort w2.dat >> w9.dat
+	sort w3.dat >> w9.dat
+	sort w4.dat >> w9.dat
+	sort w5.dat >> w9.dat
+	sort w6.dat >> w9.dat
+	sort w7.dat >> w9.dat
+	sort w8.dat >> w9.dat
+
+w10.dat: w9.dat
+	sort w9.dat > w10.dat
+
+# clean up group dataw
+cleanw:
+	rm w1.dat w2.dat w3.dat w4.dat w5.dat w6.dat w7.dat w8.dat w9.dat w10.dat
+# data group datax
+datax: x1.dat x2.dat x3.dat x4.dat x5.dat x6.dat x7.dat x8.dat x9.dat x10.dat
+
+x1.dat: iris.dat
+	cp iris.dat x1.dat
+
+x2.dat: iris.dat x1.dat
+	cat iris.dat x1.dat > x2.dat
+
+x3.dat: iris.dat
+	tr -x :blank: < iris.dat > x3.dat
+
+x4.dat: x1.dat x2.dat x3.dat
+	cat x1.dat x2.dat x3.dat | tr "A-Z" "a-z" > x4.dat
+
+x5.dat: iris.dat
+	echo "This is x5.dat" > x5.dat
+	cat iris.dat >> x5.dat
+
+x6.dat: iris.dat x1.dat
+	cat iris.dat x1.dat > x6.dat
+	cat iris.dat x1.dat >> x6.dat
+	cat iris.dat x1.dat >> x6.dat
+	
+x7.dat:
+	echo "This is x7.dat" > x7.dat
+	echo "The dmake file creates" >> x7.dat
+	echo "this file using" >> x7.dat
+	echo "echo commands." >> x7.dat
+
+x8.dat: x1.dat x2.dat x3.dat x4.dat x5.dat x6.dat x7.dat
+	wc x1.dat x2.dat x3.dat x4.dat x5.dat x6.dat x7.dat > x8.dat
+
+x9.dat: x1.dat x2.dat x3.dat x4.dat x5.dat x6.dat x7.dat x8.dat
+	sort x1.dat > x9.dat
+	sort x2.dat >> x9.dat
+	sort x3.dat >> x9.dat
+	sort x4.dat >> x9.dat
+	sort x5.dat >> x9.dat
+	sort x6.dat >> x9.dat
+	sort x7.dat >> x9.dat
+	sort x8.dat >> x9.dat
+
+x10.dat: x9.dat
+	sort x9.dat > x10.dat
+
+# clean up group datax
+cleanx:
+	rm x1.dat x2.dat x3.dat x4.dat x5.dat x6.dat x7.dat x8.dat x9.dat x10.dat
+# data group datay
+datay: y1.dat y2.dat y3.dat y4.dat y5.dat y6.dat y7.dat y8.dat y9.dat y10.dat
+
+y1.dat: iris.dat
+	cp iris.dat y1.dat
+
+y2.dat: iris.dat y1.dat
+	cat iris.dat y1.dat > y2.dat
+
+y3.dat: iris.dat
+	tr -y :blank: < iris.dat > y3.dat
+
+y4.dat: y1.dat y2.dat y3.dat
+	cat y1.dat y2.dat y3.dat | tr "A-Z" "a-z" > y4.dat
+
+y5.dat: iris.dat
+	echo "This is y5.dat" > y5.dat
+	cat iris.dat >> y5.dat
+
+y6.dat: iris.dat y1.dat
+	cat iris.dat y1.dat > y6.dat
+	cat iris.dat y1.dat >> y6.dat
+	cat iris.dat y1.dat >> y6.dat
+	
+y7.dat:
+	echo "This is y7.dat" > y7.dat
+	echo "The dmake file creates" >> y7.dat
+	echo "this file using" >> y7.dat
+	echo "echo commands." >> y7.dat
+
+y8.dat: y1.dat y2.dat y3.dat y4.dat y5.dat y6.dat y7.dat
+	wc y1.dat y2.dat y3.dat y4.dat y5.dat y6.dat y7.dat > y8.dat
+
+y9.dat: y1.dat y2.dat y3.dat y4.dat y5.dat y6.dat y7.dat y8.dat
+	sort y1.dat > y9.dat
+	sort y2.dat >> y9.dat
+	sort y3.dat >> y9.dat
+	sort y4.dat >> y9.dat
+	sort y5.dat >> y9.dat
+	sort y6.dat >> y9.dat
+	sort y7.dat >> y9.dat
+	sort y8.dat >> y9.dat
+
+y10.dat: y9.dat
+	sort y9.dat > y10.dat
+
+# clean up group datay
+cleany:
+	rm y1.dat y2.dat y3.dat y4.dat y5.dat y6.dat y7.dat y8.dat y9.dat y10.dat
+# data group dataz
+dataz: z1.dat z2.dat z3.dat z4.dat z5.dat z6.dat z7.dat z8.dat z9.dat z10.dat
+
+z1.dat: iris.dat
+	cp iris.dat z1.dat
+
+z2.dat: iris.dat z1.dat
+	cat iris.dat z1.dat > z2.dat
+
+z3.dat: iris.dat
+	tr -z :blank: < iris.dat > z3.dat
+
+z4.dat: z1.dat z2.dat z3.dat
+	cat z1.dat z2.dat z3.dat | tr "A-Z" "a-z" > z4.dat
+
+z5.dat: iris.dat
+	echo "This is z5.dat" > z5.dat
+	cat iris.dat >> z5.dat
+
+z6.dat: iris.dat z1.dat
+	cat iris.dat z1.dat > z6.dat
+	cat iris.dat z1.dat >> z6.dat
+	cat iris.dat z1.dat >> z6.dat
+	
+z7.dat:
+	echo "This is z7.dat" > z7.dat
+	echo "The dmake file creates" >> z7.dat
+	echo "this file using" >> z7.dat
+	echo "echo commands." >> z7.dat
+
+z8.dat: z1.dat z2.dat z3.dat z4.dat z5.dat z6.dat z7.dat
+	wc z1.dat z2.dat z3.dat z4.dat z5.dat z6.dat z7.dat > z8.dat
+
+z9.dat: z1.dat z2.dat z3.dat z4.dat z5.dat z6.dat z7.dat z8.dat
+	sort z1.dat > z9.dat
+	sort z2.dat >> z9.dat
+	sort z3.dat >> z9.dat
+	sort z4.dat >> z9.dat
+	sort z5.dat >> z9.dat
+	sort z6.dat >> z9.dat
+	sort z7.dat >> z9.dat
+	sort z8.dat >> z9.dat
+
+z10.dat: z9.dat
+	sort z9.dat > z10.dat
+
+# clean up group dataz
+cleanz:
+	rm z1.dat z2.dat z3.dat z4.dat z5.dat z6.dat z7.dat z8.dat z9.dat z10.dat

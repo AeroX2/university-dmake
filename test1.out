@@ -1,0 +1,6 @@
+Rule 1:
+    Targets:      echo
+    Dependencies: echo.c
+Commands:
+    gcc -o echo echo.c
+

@@ -1,0 +1,16 @@
+# make and test the wc program
+all: wc test
+
+wc: wc.c
+	gcc -o wc wc.c
+
+test:
+ ./wc test.dat > wctest.dat
+ wc test.dat > wcstd.dat
+ diff wctest.dat wcstd.dat
+
+# When the program is working correctly, install it for everyone to use
+install: wc
+        rm -f /usr/bin/wc
+    	cp wc /usr/bin/wc
+	chmod 755 /usr/bin/wc
