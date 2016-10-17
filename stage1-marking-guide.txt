@@ -1,0 +1,45 @@
+SUMMARY
+Correct output on supplied test cases     1.0  Mark.
+Correct output on hidden test cases       0.6  Mark.
+Parse command line with getopt            0.1  Boolean.
+Parse file with ctype.h                   0.1  Boolean.
+Parse file with strsep or similar         0.1  Boolean.
+Adaptive malloc for rules                 0.1  Boolean.
+                                         -----
+                                          2.0
+
+NOTES
+Correct output on supplied test cases: 1.0 marks.
+The output and error output of your program is compared with expected
+output. Any significant differences count as a failed test.
+
+Correct output on hidden test cases: 0.6 marks.
+The output and error output of your program is compared with expected
+output. Any significant differences count as a failed test.
+
+Parse command line with getopt: 0.1 marks.
+The command line should be parsed using the system library call
+getopt. An option other than -h must be parsed to earn this point.
+This is a pass/fail marking item.  Either you are awarded the maximum
+mark of 0.1 for satisfying the item, or you are awarded 0.0.
+
+Parse file with ctype.h: 0.1 marks.
+Parsing the dmake file should use one or more character type checks
+defined in ctype.h.  This is a pass/fail marking item.  Either you are
+awarded the maximum mark of 0.1 for satisfying the item, or you are
+awarded 0.0.
+
+Parse file with strsep or similar: 0.1 marks.
+Parsing the dmake file should use strtok, strtok_r, strsep, strchr,
+strspn, strpbrk, strstr or similar library calls.  This is a pass/fail
+marking item.  Either you are awarded the maximum mark of 0.1 for
+satisfying the item, or you are awarded 0.0.
+
+Adaptive malloc for rules: 0.1 marks.
+Parsed data from the dmake file should be stored in dynamically
+allocated memory. The amount of memory should vary depending on the
+amount of rules data.  This is a pass/fail marking item.  Either you
+are awarded the maximum mark of 0.1 for satisfying the item, or you
+are awarded 0.0.
+
+Total mark is out of 2.0.

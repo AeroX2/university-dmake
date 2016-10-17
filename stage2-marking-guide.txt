@@ -1,0 +1,27 @@
+SUMMARY
+Correct output on supplied test cases     0.8  Less 0.1 per error.
+Correct output on hidden test cases       1.0  Less 0.1 per error.
+Use stat system call                      0.2  Boolean.
+                                         -----
+                                          2.0
+
+NOTES
+Correct output on supplied test cases: 0.8 marks.
+The output and error output of your program is compared with expected
+output. Any significant differences count as a failed test.  The mark
+is reduced by 0.1 for each error, up to a maximum of 8 errors when the
+mark becomes 0.0.
+
+Correct output on hidden test cases: 1.0 marks.
+The output and error output of your program is compared with expected
+output. Any significant differences count as a failed test.  The mark
+is reduced by 0.1 for each error, up to a maximum of 10 errors when
+the mark becomes 0.0.
+
+Use stat system call: 0.2 marks.
+File modification times should be obtained using a member of the stat
+family of system calls.  This is a pass/fail marking item.  Either you
+are awarded the maximum mark of 0.2 for satisfying the item, or you
+are awarded 0.0.
+
+Total mark is out of 2.0.

@@ -1,0 +1,14 @@
+# build everything
+all: echo say
+
+# say is like echo
+say: echo.o
+    gcc -o say say.o
+# echo is a program that echos the command line parameters.
+# echo is built from echo.o which in turn is built from echo.c
+echo: echo.o
+  gcc -o echo echo.o
+
+echo.o: echo.c
+	gcc -c echo.c
+
