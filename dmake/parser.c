@@ -1,7 +1,7 @@
 /* Author: James Ridey 44805632
  *         james.ridey@students.mq.edu.au  
  * Creation Date: 13-10-2016
- * Last Modified: Mon 17 Oct 2016 22:27:15 AEDT
+ * Last Modified: Mon 17 Oct 2016 22:38:59 AEDT
  */
 
 #include "parser.h"
@@ -211,5 +211,6 @@ void free_rules()
 		}
 		free_array(&rule->commands);
 	}
+	free_array(&rules);
 }
 
