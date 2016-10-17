@@ -8,6 +8,12 @@
 #include <stdbool.h>
 
 #include "utils.h"
+#include "array.h"
+
+#define SUCCESS 0
+#define MALLOC_FAIL 1
+#define SYNTAX_COLON 2
+#define SYNTAX_RULE 3
 
 int parse(FILE* file);
 

@@ -1,10 +1,34 @@
 /* Author: James Ridey 44805632
  *         james.ridey@students.mq.edu.au  
  * Creation Date: 13-10-2016
- * Last Modified: Sun 16 Oct 2016 17:24:24 AEDT
+ * Last Modified: Mon 17 Oct 2016 22:15:22 AEDT
  */
 
 #include "utils.h"
+
+bool safe_malloc(void** pointer, size_t size)
+{
+	void* tmp = malloc(size);
+	if (tmp == NULL)
+	{
+		fprintf(stderr,"Unable to allocate enough memory with malloc\n");
+		return true;
+	}
+	*pointer = tmp;
+	return false;
+}
+
+bool safe_realloc(void** pointer, size_t size)
+{
+	void* tmp = realloc(*pointer,size);
+	if (tmp == NULL)
+	{
+		fprintf(stderr,"Unable to allocate enough memory with realloc\n");
+		return true;
+	}
+	*pointer = tmp;
+	return false;
+}
 
 char* strstrip(char* string, char* strip)
 {

@@ -1,7 +1,7 @@
 /* Author: James Ridey 44805632
  *         james.ridey@students.mq.edu.au  
  * Creation Date: 13-10-2016
- * Last Modified: Mon 17 Oct 2016 02:07:56 AEDT
+ * Last Modified: Mon 17 Oct 2016 22:27:15 AEDT
  */
 
 #include "parser.h"
@@ -16,15 +16,14 @@ typedef struct Rule
 {
 	char* rule_name;
 
-	char* files[1000];
-	size_t files_size;
+	//char* files[1000];
+	//size_t files_size;
+	Array files;
+	Array commands;
 
-	Command commands[1000];
-	size_t commands_size;
 } Rule;
 
-Rule rules[1000];
-size_t rules_size = 0;
+Array rules = {0};
 
 int parse(FILE* file)
 {
@@ -35,6 +34,8 @@ int parse(FILE* file)
 
 	bool append = false;
 	bool in_rule = false;
+
+	if (init_array(&rules, sizeof(Rule))) return MALLOC_FAIL;
 
 	while (getline(&line_raw, &len, file) != -1)
 	{
@@ -47,36 +48,25 @@ int parse(FILE* file)
 		if (append) 
 		{
 			line[length-2] = '\0';
+			if (safe_realloc((void**)&line, length+length_raw-1)) return MALLOC_FAIL;
 
-			//I only want to strip the beginning and only if the line contains characters
-			/*size_t start = 0;
-			if (strfind(line_raw, length_raw, isalnum)) 
-			{
-				for (i = 0; i < length_raw; i++)
-				{
-					if (!isblank(line_raw[i]))
-					{
-						start = i;
-						break;
-					}
-				}
-			}*/
-
-			line = realloc(line, length+length_raw-1);
 			strcat(line, line_raw);
-
 			append = false;
 		}
 		else 
 		{
-			if (length_raw > length) line = realloc(line, length_raw+1);
+			if (length_raw > length) 
+			{
+				if (safe_realloc((void**)&line, length_raw+1)) return MALLOC_FAIL;
+			}
 			strcpy(line, line_raw);
 		}
 
 		//TODO strlen is expensive replace with length and length_raw
 		length = strlen(line);
 
-		bool stop = false;
+		//TODO This detects backslashes with spaces at the end but line 50 needs to be fixed before you can use this
+		/*bool stop = false;
 		for (i = length-1; i > 0; i--)
 		{
 			if (line[i] == '\\')
@@ -86,13 +76,12 @@ int parse(FILE* file)
 			}
 			else if (isalnum(line[i])) break;
 		}
-		//Line has a back slash append line
-		/*if (line[length-2] == '\\')
+		if (stop) 
 		{
 			append = true;
 			continue;
 		}*/
-		if (stop) 
+		if (line[length-2] == '\\')
 		{
 			append = true;
 			continue;
@@ -118,7 +107,7 @@ int parse(FILE* file)
 			{
 				fprintf(stderr, "Syntax error at line %lu: Unexpected command without rule header:\n", line_num);
 				fprintf(stderr, "%s", line);
-				return 1;
+				return SYNTAX_COLON;
 			}
 
 			if (!strfind(line, length, isalnum)) 
@@ -128,68 +117,79 @@ int parse(FILE* file)
 			}
 
 			//Add command to rules
-			Rule* rule = &rules[rules_size-1];
-			Command command = {0};
-			command.command = strdup(strstrip(line, "\t\n "));
-			rule->commands[rule->commands_size++] = command;
+			Rule* rule = (Rule*)rules.data[rules.size-1];
+			Command* command = NULL;
+			if (safe_malloc((void**)&command, sizeof(Command))) return MALLOC_FAIL;
+
+			command->command = strdup(strstrip(line, "\t\n "));
+			if (push_array(&rule->commands, command)) return MALLOC_FAIL;
 		}
 		else if (isalnum(line[0]))
 		{
 			char* save = NULL;
 			char* token = strtok_r(line, ":", &save);
 
-			Rule rule = {0};
-			if (strlen(token) != length) rule.rule_name = strdup(strstrip(token, "\t\n "));
+			Rule* rule = NULL;
+			if (safe_malloc((void**)&rule, sizeof(Rule))) return MALLOC_FAIL;
+
+			if (init_array(&rule->files, sizeof(char*))) return MALLOC_FAIL;
+			if (init_array(&rule->commands, sizeof(Command))) return MALLOC_FAIL;
+
+			if (strlen(token) != length) rule->rule_name = strdup(strstrip(token, "\t\n "));
 			else
 			{
 				fprintf(stderr, "Syntax error at line %lu: Expected colon separator in rule header:\n", line_num);
 				fprintf(stderr, "%s", line);
-				return 1;
+				return SYNTAX_RULE;
 			}
 
 			while (token != NULL)
 			{
 				token = strtok_r(NULL, "\n\t ", &save);
-				if (token != NULL) rule.files[rule.files_size++] = strdup(token);
+				if (token != NULL)
+				{ 
+					if (push_array(&rule->files, strdup(token))) return MALLOC_FAIL;	
+				}
 			}
-			rules[rules_size++] = rule;
+			if (push_array(&rules, rule)) return MALLOC_FAIL;
+
 			in_rule = true;
 		}
 	}
 	free(line);
-	//free(line_raw);
+	free(line_raw);
 
-	return 0;
+	return SUCCESS;
 }
 
 int execute()
 {
-	return 0;
+	return SUCCESS;
 }
 
 void debug_stage1()
 {
 	size_t i;
-	for (i = 0; i < rules_size; i++)
+	for (i = 0; i < rules.size; i++)
 	{
-		Rule rule = rules[i];
+		Rule rule = *(Rule*)rules.data[i];
 		printf("Rule %lu:\n", i+1);
 		printf("    Targets:      %s\n", rule.rule_name);
 
 		printf("    Dependencies: ");
-		if (rule.files_size > 0)
+		if (rule.files.size > 0)
 		{
-			char* files = strjoin(rule.files, rule.files_size, ", ");
+			char* files = strjoin((char**)rule.files.data, rule.files.size, ", ");
 			printf("%s", files);
 			free(files);
 		}
 		printf("\n");
 
-		if (rule.commands_size > 0)
+		if (rule.commands.size > 0)
 		{
 			printf("Commands:\n");
 			size_t ii;
-			for (ii = 0; ii < rule.commands_size; ii++) printf("    %s\n", rule.commands[ii].command);
+			for (ii = 0; ii < rule.commands.size; ii++) printf("    %s\n", (*(Command*)rule.commands.data[ii]).command);
 		}
 		printf("\n");
 	}
@@ -199,17 +199,17 @@ void free_rules()
 {
 	size_t i;
 	size_t ii;
-	for (i = 0; i < rules_size; i++)
+	for (i = 0; i < rules.size; i++)
 	{
-		Rule* rule = &rules[i];
+		Rule* rule = (Rule*)rules.data[i];
 		free(rule->rule_name);
-		for (ii = 0; ii < rule->files_size; ii++) free(rule->files[ii]);
-		for (ii = 0; ii < rule->commands_size; ii++) 
+		free_array(&rule->files);
+		for (ii = 0; ii < rule->commands.size; ii++) 
 		{
-			//Command command = rule->commands[ii];
-			//free(command.command);
-			//free((&rule->commands[ii])->command);
+			Command* command = rule->commands.data[ii];
+			free(command->command);
 		}
+		free_array(&rule->commands);
 	}
 }
 
