@@ -1,7 +1,7 @@
 /* Author: James Ridey 44805632
  *         james.ridey@students.mq.edu.au  
  * Creation Date: 13-10-2016
- * Last Modified: Tue 18 Oct 2016 16:10:21 AEDT
+ * Last Modified: Tue 18 Oct 2016 16:24:32 AEDT
  */
 
 #include "parser.h"
@@ -215,25 +215,26 @@ void debug_stage2()
 		for (ii = 0; ii < rule.files.size; ii++)
 		{
 			char* dependency = rule.files.data[ii];
-			printf("Depend %s\n",dependency);
+			//printf("Depend %s\n",dependency);
 			struct stat dependency_stat;
 
 			bool found = false;
 			for (iii = 0; iii < created_files.size; iii++)
 			{
-				if (strcmp(created_files.data[iii], dependency)) found = true;
+				if (strcmp(created_files.data[iii], dependency) == 0) found = true;
 			}
 			if (found) fire = true;
 			else if (stat(dependency, &dependency_stat) == 0)
 			{
-				printf("Target %s\n", rule.rule_name);
+				//printf("Target %s\n", rule.rule_name);
 				struct stat target_stat;
 				if (stat(rule.rule_name, &target_stat) < 0) fire = true;
 				else if (dependency_stat.st_mtime > target_stat.st_mtime) fire = true;
 			}
 			else
 			{
-				printf("Wat\n");
+				fprintf(stderr, "Error: No rule to build %s\n", dependency);
+				return;
 			}
 		}
 			
