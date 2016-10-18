@@ -1,7 +1,7 @@
 /* Author: James Ridey 44805632
  *         james.ridey@students.mq.edu.au  
  * Creation Date: 13-10-2016
- * Last Modified: Mon 17 Oct 2016 22:38:59 AEDT
+ * Last Modified: Tue 18 Oct 2016 16:10:21 AEDT
  */
 
 #include "parser.h"
@@ -24,6 +24,7 @@ typedef struct Rule
 } Rule;
 
 Array rules = {0};
+Array created_files = {0};
 
 int parse(FILE* file)
 {
@@ -67,7 +68,7 @@ int parse(FILE* file)
 
 		//TODO This detects backslashes with spaces at the end but line 50 needs to be fixed before you can use this
 		/*bool stop = false;
-		for (i = length-1; i > 0; i--)
+		for (i = length+1; i-- > 0;)
 		{
 			if (line[i] == '\\')
 			{
@@ -162,6 +163,11 @@ int parse(FILE* file)
 	return SUCCESS;
 }
 
+int order()
+{
+	return SUCCESS;
+}
+
 int execute()
 {
 	return SUCCESS;
@@ -192,6 +198,50 @@ void debug_stage1()
 			for (ii = 0; ii < rule.commands.size; ii++) printf("    %s\n", (*(Command*)rule.commands.data[ii]).command);
 		}
 		printf("\n");
+	}
+}
+
+void debug_stage2()
+{
+	init_array(&created_files, sizeof(char*));
+	size_t i;
+	size_t ii;
+	size_t iii;
+	for (i = rules.size; i-- > 0;)
+	{
+		Rule rule = *(Rule*)rules.data[i];	
+
+		bool fire = false;
+		for (ii = 0; ii < rule.files.size; ii++)
+		{
+			char* dependency = rule.files.data[ii];
+			printf("Depend %s\n",dependency);
+			struct stat dependency_stat;
+
+			bool found = false;
+			for (iii = 0; iii < created_files.size; iii++)
+			{
+				if (strcmp(created_files.data[iii], dependency)) found = true;
+			}
+			if (found) fire = true;
+			else if (stat(dependency, &dependency_stat) == 0)
+			{
+				printf("Target %s\n", rule.rule_name);
+				struct stat target_stat;
+				if (stat(rule.rule_name, &target_stat) < 0) fire = true;
+				else if (dependency_stat.st_mtime > target_stat.st_mtime) fire = true;
+			}
+			else
+			{
+				printf("Wat\n");
+			}
+		}
+			
+		if (fire)
+		{
+			printf("Fire rule %lu\n", i+1);
+			push_array(&created_files, rule.rule_name);
+		}
 	}
 }
 

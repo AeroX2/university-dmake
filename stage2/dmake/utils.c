@@ -1,7 +1,7 @@
 /* Author: James Ridey 44805632
  *         james.ridey@students.mq.edu.au  
  * Creation Date: 13-10-2016
- * Last Modified: Mon 17 Oct 2016 22:15:22 AEDT
+ * Last Modified: Tue 18 Oct 2016 16:07:30 AEDT
  */
 
 #include "utils.h"
@@ -32,11 +32,11 @@ bool safe_realloc(void** pointer, size_t size)
 
 char* strstrip(char* string, char* strip)
 {
-	size_t length = strlen(string);
-	size_t length_strip = strlen(strip);
+	int length = strlen(string);
+	int length_strip = strlen(strip);
 
-	size_t i;
-	size_t ii;
+	int i;
+	int ii;
 	int start = 0;
 	for (i = 0; i < length; i++)
 	{
@@ -54,7 +54,7 @@ char* strstrip(char* string, char* strip)
 	}
 
 	int end = length;
-	for (i = length; i > 0; i--)
+	for (i = length+1; i-- > 0;)
 	{
 		bool found = false;
 		for (ii = 0; ii < length_strip; ii++)

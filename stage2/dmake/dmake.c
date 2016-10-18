@@ -1,7 +1,7 @@
 /* Author: James Ridey 44805632
  *         james.ridey@students.mq.edu.au  
  * Creation Date: 13-10-2016
- * Last Modified: Mon 17 Oct 2016 21:59:59 AEDT
+ * Last Modified: Tue 18 Oct 2016 15:17:15 AEDT
  */
 
 #include <stdio.h>
@@ -11,6 +11,7 @@
 #include "parser.h"
 
 void usage();
+void finish(int code);
 
 int main(int argc, char **argv) 
 {
@@ -52,25 +53,29 @@ int main(int argc, char **argv)
 	int output = parse(file);
 	fclose(file);
 
-	//Parse had an error
-	if (output > 0) exit(output);
+	//Parsing the file had an error
+	if (output > 0) finish(output);
 
-	if (debug == 0) output = execute();
-	else
+	output = order();
+
+	//Determining the order of execution failed
+	if (output > 0) finish(output);
+
+	output = execute();
+	switch (debug)
 	{
-		switch (debug)
-		{
-			case 1:
-				debug_stage1();
-				break;
-		//	case 2:
-		//		output = debug_stage1();
-		//		break;
-		}
+		case 1:
+			debug_stage1();
+			break;
+		case 2:
+			debug_stage2();
+			break;
+		//case 3:
+			//debug_stage3();
+			//break;
 	}
 
-	free_rules();
-	if (output > 0) exit(output);
+	finish(output);
 
     return 0;
 }
@@ -82,4 +87,10 @@ void usage()
     printf("  -zN: Perform processing for stage N.\n");
     printf("  -f file: Read dmake rules from file.\n");
     return;
+}
+
+void finish(int code)
+{
+	free_rules();
+	exit(code);
 }
