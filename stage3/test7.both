@@ -1,0 +1,3 @@
+./say "everybody loves Christmas" > out-say.txt
+grep everybody out-say.txt
+*** Exited with error 1 ***

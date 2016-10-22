@@ -1,0 +1,1 @@
+# define OPEN_FAILURE 23

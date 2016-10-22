@@ -1,0 +1,7 @@
+# say is a program that says the command line parameters.
+say: say.o
+  gcc -o say say.o
+say.o: say.c
+	gcc -c say.c
+clean:
+    -rm say.o

@@ -1,0 +1,4 @@
+rm   echo.o
+gcc -c echo.c
+gcc -o echo echo.o
+gcc -o say say.o

@@ -1,0 +1,8 @@
+rm junk
+rm: cannot remove `junk': No such file or directory
+rm oops
+rm: cannot remove `oops': No such file or directory
+--- Exited with error 1 (ignored) ---
+gcc -c echo.c
+echo.c:3: error: expected ‘=’, ‘,’, ‘;’, ‘asm’ or ‘__attribute__’ before ‘error’
+*** Exited with error 1 ***

@@ -1,0 +1,10 @@
+# say is a program that says the command line parameters.
+# If say does not work, then grep will fail.
+# If say works, grep will succeed but the modifier * prevents output being displayed.
+test: say
+    ./say "everybody loves Christmas" > out-say.txt
+     *grep everybody out-say.txt
+say: say.o
+  gcc -o say say.o
+say.o: say.c
+	gcc -c say.c
