@@ -1,7 +1,7 @@
 /* Author: James Ridey 44805632
  *         james.ridey@students.mq.edu.au  
  * Creation Date: 13-10-2016
- * Last Modified: Tue 18 Oct 2016 16:24:32 AEDT
+ * Last Modified: Sat 22 Oct 2016 15:16:33 AEDT
  */
 
 #include "parser.h"
@@ -23,8 +23,8 @@ typedef struct Rule
 
 } Rule;
 
-Array rules = {0};
-Array created_files = {0};
+Array rules = {};
+Array created_files = {};
 
 int parse(FILE* file)
 {
@@ -211,6 +211,9 @@ void debug_stage2()
 	{
 		Rule rule = *(Rule*)rules.data[i];	
 
+		struct stat target_stat;
+		bool target_exists = stat(rule.rule_name, &target_stat) >= 0;
+
 		bool fire = false;
 		for (ii = 0; ii < rule.files.size; ii++)
 		{
@@ -227,8 +230,7 @@ void debug_stage2()
 			else if (stat(dependency, &dependency_stat) == 0)
 			{
 				//printf("Target %s\n", rule.rule_name);
-				struct stat target_stat;
-				if (stat(rule.rule_name, &target_stat) < 0) fire = true;
+				if (!target_exists) fire = true;
 				else if (dependency_stat.st_mtime > target_stat.st_mtime) fire = true;
 			}
 			else
