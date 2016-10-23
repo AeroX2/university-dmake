@@ -1,7 +1,7 @@
 /* Author: James Ridey 44805632
  *         james.ridey@students.mq.edu.au  
  * Creation Date: 13-10-2016
- * Last Modified: Sun 23 Oct 2016 08:02:49 PM AEDT
+ * Last Modified: Sun 23 Oct 2016 08:37:07 PM AEDT
  */
 
 #include "parser.h"
@@ -264,8 +264,9 @@ int execute()
 			else if (pid <= 0)
 			{
 				//Child
-				if (modifiers & STAR_MODIFIER) freopen("/dev/null", "w", stdout);
-				if (modifiers & AMPERSAND_MODIFIER) freopen("/dev/null", "w", stderr);
+				int fd = open("/dev/null", O_WRONLY);
+				if (modifiers & STAR_MODIFIER) dup2(fd, 1);
+				if (modifiers & AMPERSAND_MODIFIER) dup2(fd, 2);
 				
 				execl("/bin/sh","/bin/sh","-c",command.command + iii,NULL);
 				_exit(0);

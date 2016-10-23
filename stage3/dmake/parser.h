@@ -8,6 +8,8 @@
 #include <unistd.h>
 #include <stdbool.h>
 
+#include <fcntl.h>
+
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <sys/types.h>
