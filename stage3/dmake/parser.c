@@ -1,7 +1,7 @@
 /* Author: James Ridey 44805632
  *         james.ridey@students.mq.edu.au  
  * Creation Date: 13-10-2016
- * Last Modified: Sun 23 Oct 2016 08:37:07 PM AEDT
+ * Last Modified: Sun 23 Oct 2016 09:22:35 PM AEDT
  */
 
 #include "parser.h"
@@ -197,9 +197,6 @@ int order()
 				//printf("Target %s\n", rule.rule_name);
 				if (!target_exists) fire = true;
 				else if (dependency_stat.st_mtime > target_stat.st_mtime) fire = true;
-
-				//TODO REMOVE THIS
-				fire = true;
 			}
 			else
 			{
@@ -267,6 +264,7 @@ int execute()
 				int fd = open("/dev/null", O_WRONLY);
 				if (modifiers & STAR_MODIFIER) dup2(fd, 1);
 				if (modifiers & AMPERSAND_MODIFIER) dup2(fd, 2);
+				close(fd);
 				
 				execl("/bin/sh","/bin/sh","-c",command.command + iii,NULL);
 				_exit(0);
@@ -274,7 +272,11 @@ int execute()
 			else
 			{
 				//Parent
-				if (!(modifiers & AT_MODIFIER)) printf("%s\n", command.command + iii);
+				if (!(modifiers & AT_MODIFIER)) 
+				{
+					printf("%s\n", command.command + iii);
+					fflush(NULL);
+				}
 
 				int status;
 				waitpid(pid, &status, 0);
