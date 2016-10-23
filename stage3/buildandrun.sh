@@ -10,5 +10,7 @@ do
 	`cat ../test$i.cmd` > ../output 2> ../output.err
 	cd ../
 	diff "test$i.out" output
+	cat output
 	diff "test$i.err" output.err
+	cat output.err
 done
