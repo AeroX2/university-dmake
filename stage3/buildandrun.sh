@@ -1,6 +1,6 @@
 #!/bin/sh
 
-gcc -g -Wall -fsanitize=undefined dmake/*.c dmake/*.h -o dmake/dmake
+gcc -g -Wall dmake/*.c dmake/*.h -o dmake/dmake
 export PATH="$PATH:`pwd`/dmake"
 
 for i in {1..10}
@@ -10,7 +10,5 @@ do
 	`cat ../test$i.cmd` > ../output 2> ../output.err
 	cd ../
 	diff "test$i.out" output
-	cat output
 	diff "test$i.err" output.err
-	cat output.err
 done
