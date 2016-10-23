@@ -1,7 +1,7 @@
 /* Author: James Ridey 44805632
  *         james.ridey@students.mq.edu.au  
  * Creation Date: 13-10-2016
- * Last Modified: Sun 23 Oct 2016 19:37:00 AEDT
+ * Last Modified: Sun 23 Oct 2016 08:02:49 PM AEDT
  */
 
 #include "parser.h"
@@ -251,6 +251,8 @@ int execute()
 					case '&':
 						modifiers |= AMPERSAND_MODIFIER;
 						break;
+					case ' ':
+						break;
 					default:
 						stop = true;
 				}
@@ -282,7 +284,7 @@ int execute()
 						if (modifiers & DASH_MODIFIER) fprintf(stderr, "--- Exited with error 1 (ignored) ---\n");
 						else fprintf(stderr, "*** Exited with error 1 ***\n");
 					}
-					if (!(modifiers & DASH_MODIFIER)) return status;	
+					if (!(modifiers & DASH_MODIFIER) && !(modifiers & EQUALS_MODIFIER)) return status;	
 				}
 			}
 		}
