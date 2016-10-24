@@ -1,10 +1,27 @@
 /* Author: James Ridey 44805632
  *         james.ridey@students.mq.edu.au  
  * Creation Date: 13-10-2016
- * Last Modified: Mon 24 Oct 2016 16:17:05 AEDT
+ * Last Modified: Tue 25 Oct 2016 02:24:31 AEDT
  */
 
 #include "parser.h"
+
+//TODO Dynamic array
+typedef struct Command
+{
+	char* command;
+} Command;
+
+typedef struct Rule
+{
+	char* rule_name;
+
+	//char* files[1000];
+	//size_t files_size;
+	Array files;
+	Array commands;
+
+} Rule;
 
 Array rules = {};
 Array rules_to_fire = {};
@@ -27,8 +44,6 @@ int parse(FILE* file)
 		line_num++;
 		size_t length = line != NULL ? strlen(line) : 0;
 		size_t length_raw = strlen(line_raw);
-
-		size_t i;
 
 		if (append) 
 		{
@@ -74,6 +89,7 @@ int parse(FILE* file)
 
 		//Line is a comment ignore
 		bool ignore = false;
+		size_t i;
 		for (i = 0; i < length; i++)
 		{
 			if (line[i] == '#') 
@@ -117,10 +133,10 @@ int parse(FILE* file)
 			Rule* rule = NULL;
 			if (safe_malloc((void**)&rule, sizeof(Rule))) return MALLOC_FAIL;
 
-			if (init_array(&rule->dependencies, sizeof(char*))) return MALLOC_FAIL;
+			if (init_array(&rule->files, sizeof(char*))) return MALLOC_FAIL;
 			if (init_array(&rule->commands, sizeof(Command))) return MALLOC_FAIL;
 
-			if (strlen(token) != length) rule->target = strdup(strstrip(token, "\t\n "));
+			if (strlen(token) != length) rule->rule_name = strdup(strstrip(token, "\t\n "));
 			else
 			{
 				fprintf(stderr, "Syntax error at line %lu: Expected colon separator in rule header:\n", line_num);
@@ -133,7 +149,7 @@ int parse(FILE* file)
 				token = strtok_r(NULL, "\n\t ", &save);
 				if (token != NULL)
 				{ 
-					if (push_array(&rule->dependencies, strdup(token))) return MALLOC_FAIL;	
+					if (push_array(&rule->files, strdup(token))) return MALLOC_FAIL;	
 				}
 			}
 			if (push_array(&rules, rule)) return MALLOC_FAIL;
@@ -160,12 +176,12 @@ int order()
 		Rule rule = *(Rule*)rules.data[i];	
 
 		struct stat target_stat;
-		bool target_exists = stat(rule.target, &target_stat) >= 0;
+		bool target_exists = stat(rule.rule_name, &target_stat) >= 0;
 
-		bool fire = rule.dependencies.size == 0;
-		for (ii = 0; ii < rule.dependencies.size; ii++)
+		bool fire = rule.files.size == 0;
+		for (ii = 0; ii < rule.files.size; ii++)
 		{
-			char* dependency = rule.dependencies.data[ii];
+			char* dependency = rule.files.data[ii];
 			//printf("Depend %s\n",dependency);
 			struct stat dependency_stat;
 
@@ -191,7 +207,7 @@ int order()
 		if (fire)
 		{
 			push_array(&rules_to_fire, (void*)i);
-			push_array(&created_files, rule.target);
+			push_array(&created_files, rule.rule_name);
 		}
 	}
 	return SUCCESS;
@@ -286,12 +302,12 @@ void debug_stage1()
 	{
 		Rule rule = *(Rule*)rules.data[i];
 		printf("Rule %lu:\n", i+1);
-		printf("    Targets:      %s\n", rule.target);
+		printf("    Targets:      %s\n", rule.rule_name);
 
 		printf("    Dependencies: ");
-		if (rule.dependencies.size > 0)
+		if (rule.files.size > 0)
 		{
-			char* files = strjoin((char**)rule.dependencies.data, rule.dependencies.size, ", ");
+			char* files = strjoin((char**)rule.files.data, rule.files.size, ", ");
 			printf("%s", files);
 			free(files);
 		}
@@ -323,8 +339,8 @@ void free_rules()
 	for (i = 0; i < rules.size; i++)
 	{
 		Rule* rule = (Rule*)rules.data[i];
-		free(rule->target);
-		free_array(&rule->dependencies);
+		free(rule->rule_name);
+		free_array(&rule->files);
 		for (ii = 0; ii < rule->commands.size; ii++) 
 		{
 			Command* command = rule->commands.data[ii];
@@ -332,6 +348,9 @@ void free_rules()
 		}
 		free_array(&rule->commands);
 	}
+
 	free_array(&rules);
+	free_array(&rules_to_fire);
+	free_array(&created_files);
 }
 
