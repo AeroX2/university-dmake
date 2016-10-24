@@ -1,10 +1,8 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-#include <ctype.h>
 #include <stdio.h>
 #include <string.h>
-#include <stdlib.h>
 #include <stdbool.h>
 
 bool safe_malloc(void** pointer, size_t size);
