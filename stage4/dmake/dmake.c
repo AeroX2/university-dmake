@@ -1,7 +1,7 @@
 /* Author: James Ridey 44805632
  *         james.ridey@students.mq.edu.au  
  * Creation Date: 13-10-2016
- * Last Modified: Tue 18 Oct 2016 15:17:15 AEDT
+ * Last Modified: Mon 24 Oct 2016 04:28:23 PM AEDT
  */
 
 #include <stdio.h>
@@ -55,26 +55,23 @@ int main(int argc, char **argv)
 
 	//Parsing the file had an error
 	if (output > 0) finish(output);
+	if (debug == 1) 
+	{
+		debug_stage1();
+		finish(0);
+	}
 
 	output = order();
 
 	//Determining the order of execution failed
 	if (output > 0) finish(output);
-
-	output = execute();
-	switch (debug)
+	if (debug == 2) 
 	{
-		case 1:
-			debug_stage1();
-			break;
-		case 2:
-			debug_stage2();
-			break;
-		//case 3:
-			//debug_stage3();
-			//break;
+		debug_stage2();
+		finish(0);
 	}
 
+	output = execute();
 	finish(output);
 
     return 0;
