@@ -1,7 +1,7 @@
 /* Author: James Ridey 44805632
  *         james.ridey@students.mq.edu.au  
  * Creation Date: 13-10-2016
- * Last Modified: Tue 25 Oct 2016 19:02:14 AEDT
+ * Last Modified: Tue 25 Oct 2016 19:35:01 AEDT
  */
 
 #include "parser.h"
@@ -32,14 +32,14 @@ int parse(FILE* file)
 		if (append) 
 		{
 			line[length-2] = '\0';
-			line = realloc(&line, length+length_raw-1);
+			line = realloc(line, length+length_raw-1);
 
 			strcat(line, line_raw);
 			append = false;
 		}
 		else 
 		{
-			if (length_raw > length) line = realloc(&line, length_raw+1);
+			if (length_raw > length) line = realloc(line, length_raw+1);
 			strcpy(line, line_raw);
 		}
 
