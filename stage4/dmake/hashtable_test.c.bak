@@ -1,13 +1,14 @@
 /* Author: James Ridey 44805632
  *         james.ridey@students.mq.edu.au  
  * Creation Date: 25-10-2016
- * Last Modified: Tue 25 Oct 2016 01:48:44 AEDT
+ * Last Modified: Tue 25 Oct 2016 18:37:43 AEDT
  */
 
 #include <stdlib.h>
 #include <stdio.h>
 
 #include "hashtable.h"
+#include "utils.h"
 
 int main() 
 {
@@ -33,7 +34,12 @@ int main()
 	entry2->data = 48;
 	push_hashtable(hashtable, entry2);
 
-	printf("%d\n", get_hashtable(hashtable, "hello")->data);
-	printf("%d\n", get_hashtable(hashtable, "hello2")->data);
-	printf("%d\n", get_hashtable(hashtable, "hello8")->data);
+	printf("%d\n", get_hashtable(hashtable, "hello"));
+	printf("%d\n", get_hashtable(hashtable, "hello2"));
+	printf("%d\n", get_hashtable(hashtable, "hello8"));
+
+	printf("%lu\n", filehash("dmake"));
+	printf("%lu\n", filehash("dmake"));
+	printf("%lu\n", filehash("dmake.c"));
+	printf("%lu\n", filehash("utils.c"));
 }

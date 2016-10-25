@@ -1,31 +1,15 @@
 /* Author: James Ridey 44805632
  *         james.ridey@students.mq.edu.au  
  * Creation Date: 13-10-2016
- * Last Modified: Tue 25 Oct 2016 02:24:31 AEDT
+ * Last Modified: Tue 25 Oct 2016 19:02:14 AEDT
  */
 
 #include "parser.h"
 
-//TODO Dynamic array
-typedef struct Command
-{
-	char* command;
-} Command;
-
-typedef struct Rule
-{
-	char* rule_name;
-
-	//char* files[1000];
-	//size_t files_size;
-	Array files;
-	Array commands;
-
-} Rule;
-
 Array rules = {};
 Array rules_to_fire = {};
 Array created_files = {};
+Hashtable file_times = {};
 
 int parse(FILE* file)
 {
@@ -37,7 +21,7 @@ int parse(FILE* file)
 	bool append = false;
 	bool in_rule = false;
 
-	if (init_array(&rules, sizeof(Rule))) return MALLOC_FAIL;
+	init_array(&rules, sizeof(Rule));
 
 	while (getline(&line_raw, &len, file) != -1)
 	{
@@ -48,17 +32,14 @@ int parse(FILE* file)
 		if (append) 
 		{
 			line[length-2] = '\0';
-			if (safe_realloc((void**)&line, length+length_raw-1)) return MALLOC_FAIL;
+			line = realloc(&line, length+length_raw-1);
 
 			strcat(line, line_raw);
 			append = false;
 		}
 		else 
 		{
-			if (length_raw > length) 
-			{
-				if (safe_realloc((void**)&line, length_raw+1)) return MALLOC_FAIL;
-			}
+			if (length_raw > length) line = realloc(&line, length_raw+1);
 			strcpy(line, line_raw);
 		}
 
@@ -119,24 +100,22 @@ int parse(FILE* file)
 
 			//Add command to rules
 			Rule* rule = (Rule*)rules.data[rules.size-1];
-			Command* command = NULL;
-			if (safe_malloc((void**)&command, sizeof(Command))) return MALLOC_FAIL;
+			Command* command = malloc(sizeof(Command));
 
 			command->command = strdup(strstrip(line, "\t\n "));
-			if (push_array(&rule->commands, command)) return MALLOC_FAIL;
+			push_array(&rule->commands, command);
 		}
 		else if (isalnum(line[0]))
 		{
 			char* save = NULL;
 			char* token = strtok_r(line, ":", &save);
 
-			Rule* rule = NULL;
-			if (safe_malloc((void**)&rule, sizeof(Rule))) return MALLOC_FAIL;
+			Rule* rule = malloc(sizeof(Rule));
 
-			if (init_array(&rule->files, sizeof(char*))) return MALLOC_FAIL;
-			if (init_array(&rule->commands, sizeof(Command))) return MALLOC_FAIL;
+			init_array(&rule->dependencies, sizeof(char*));
+			init_array(&rule->commands, sizeof(Command));
 
-			if (strlen(token) != length) rule->rule_name = strdup(strstrip(token, "\t\n "));
+			if (strlen(token) != length) rule->target = strdup(strstrip(token, "\t\n "));
 			else
 			{
 				fprintf(stderr, "Syntax error at line %lu: Expected colon separator in rule header:\n", line_num);
@@ -147,12 +126,9 @@ int parse(FILE* file)
 			while (token != NULL)
 			{
 				token = strtok_r(NULL, "\n\t ", &save);
-				if (token != NULL)
-				{ 
-					if (push_array(&rule->files, strdup(token))) return MALLOC_FAIL;	
-				}
+				if (token != NULL) push_array(&rule->dependencies, strdup(token));	
 			}
-			if (push_array(&rules, rule)) return MALLOC_FAIL;
+			push_array(&rules, rule);
 
 			in_rule = true;
 		}
@@ -176,12 +152,17 @@ int order()
 		Rule rule = *(Rule*)rules.data[i];	
 
 		struct stat target_stat;
-		bool target_exists = stat(rule.rule_name, &target_stat) >= 0;
+		bool target_exists = stat(rule.target, &target_stat) >= 0;
 
-		bool fire = rule.files.size == 0;
-		for (ii = 0; ii < rule.files.size; ii++)
+		time_t target_time;
+		Entry* entry = get_hashtable(&file_times, rule.target);
+		if (entry == NULL) target_time = target_stat.st_mtime;
+		else target_time = (time_t)entry->data;
+
+		bool fire = rule.dependencies.size == 0;
+		for (ii = 0; ii < rule.dependencies.size; ii++)
 		{
-			char* dependency = rule.files.data[ii];
+			char* dependency = rule.dependencies.data[ii];
 			//printf("Depend %s\n",dependency);
 			struct stat dependency_stat;
 
@@ -195,7 +176,7 @@ int order()
 			{
 				//printf("Target %s\n", rule.rule_name);
 				if (!target_exists) fire = true;
-				else if (dependency_stat.st_mtime > target_stat.st_mtime) fire = true;
+				else if (dependency_stat.st_mtime > target_time) fire = true;
 			}
 			else
 			{
@@ -207,7 +188,17 @@ int order()
 		if (fire)
 		{
 			push_array(&rules_to_fire, (void*)i);
-			push_array(&created_files, rule.rule_name);
+			push_array(&created_files, rule.target);
+
+			Entry* entry = malloc(sizeof(Entry));
+			entry->key = rule.target;
+
+			size_t hash = filehash(rule.target);
+			File* file = malloc(sizeof(File));
+			file->hash = hash;
+			file->old_time = target_time;
+			entry->data = file;
+			push_hashtable(&file_times, entry);
 		}
 	}
 	return SUCCESS;
@@ -290,6 +281,19 @@ int execute()
 				}
 			}
 		}
+
+		Entry* entry = get_hashtable(&file_times, rule.target);
+		if (entry != NULL)
+		{
+			File* file = (File*)entry->data;
+			if (filehash(rule.target) != file->hash)
+			{
+				struct utimbuf new_time;
+				new_time.modtime = file->old_time;
+				utime(rule.target, &new_time);
+				file->new_time = time(NULL);
+			}
+		}
 	}
 
 	return SUCCESS;
@@ -302,12 +306,12 @@ void debug_stage1()
 	{
 		Rule rule = *(Rule*)rules.data[i];
 		printf("Rule %lu:\n", i+1);
-		printf("    Targets:      %s\n", rule.rule_name);
+		printf("    Targets:      %s\n", rule.target);
 
 		printf("    Dependencies: ");
-		if (rule.files.size > 0)
+		if (rule.dependencies.size > 0)
 		{
-			char* files = strjoin((char**)rule.files.data, rule.files.size, ", ");
+			char* files = strjoin((char**)rule.dependencies.data, rule.dependencies.size, ", ");
 			printf("%s", files);
 			free(files);
 		}
@@ -339,8 +343,8 @@ void free_rules()
 	for (i = 0; i < rules.size; i++)
 	{
 		Rule* rule = (Rule*)rules.data[i];
-		free(rule->rule_name);
-		free_array(&rule->files);
+		free(rule->target);
+		free_array(&rule->dependencies);
 		for (ii = 0; ii < rule->commands.size; ii++) 
 		{
 			Command* command = rule->commands.data[ii];

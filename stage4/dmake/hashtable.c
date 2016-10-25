@@ -1,7 +1,7 @@
 /* Author: James Ridey 44805632
  *         james.ridey@students.mq.edu.au  
  * Creation Date: 10-08-2016
- * Last Modified: Tue 25 Oct 2016 01:39:28 AEDT
+ * Last Modified: Tue 25 Oct 2016 19:05:03 AEDT
  */
 #include "hashtable.h"
 
@@ -13,24 +13,13 @@ bool init_hashtable(Hashtable* hashtable, size_t allocated_size, size_t element_
 	for (i = 0; i < allocated_size; i++)
 	{
 		Array* array = malloc(sizeof(Array));
+		if (array == NULL) return true;
 		if (init_array(array, element_size)) return true;
 		push_array(&hashtable->buckets, array);
 	}
 	hashtable->allocated_size = allocated_size;
 
 	return false;
-}
-
-size_t hash(char* string)
-{
-	/*Borrowed from http://www.partow.net/programming/hashfunctions*/	
-	size_t hash = 5381;
-	size_t i;
-	for (i = 0; string[i] != '\0'; i++)
-	{
-		hash = ((hash << 5) + hash) + string[i];
-	}
-	return hash;
 }
 
 bool push_hashtable(Hashtable* hashtable, Entry* entry)
@@ -60,7 +49,7 @@ bool push_hashtable(Hashtable* hashtable, Entry* entry)
 	return false;
 }
 
-Entry* get_hashtable(Hashtable* hashtable, char* key)
+void* get_hashtable(Hashtable* hashtable, char* key)
 {
 	size_t hashed_key = hash(key) % hashtable->allocated_size;
 	
@@ -74,14 +63,13 @@ Entry* get_hashtable(Hashtable* hashtable, char* key)
 			Entry* entry = (Entry*)array->data[i];
 			if (strcmp(key, entry->key) == 0)
 			{
-				return entry;
+				return entry->data;
 			}
 		}
 	}
 
 	return NULL;
 }
-
 
 void free_hashtable(Hashtable* hashtable)
 {

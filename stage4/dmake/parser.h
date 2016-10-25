@@ -8,7 +8,9 @@
 #include <unistd.h>
 #include <stdbool.h>
 
+#include <time.h>
 #include <fcntl.h>
+#include <utime.h>
 
 #include <sys/stat.h>
 #include <sys/wait.h>
@@ -16,13 +18,13 @@
 
 #include "utils.h"
 #include "array.h"
+#include "hashtable.h"
 
 #define SUCCESS         0
-#define MALLOC_FAIL     1
-#define SYNTAX_COLON    2
-#define SYNTAX_RULE     3
-#define NO_RULE_TO_FIRE 4
-#define FAILURE_FORK    5
+#define SYNTAX_COLON    1
+#define SYNTAX_RULE     2
+#define NO_RULE_TO_FIRE 3
+#define FAILURE_FORK    4
 
 #define AT_MODIFIER        1 << 1
 #define DASH_MODIFIER      1 << 2
@@ -43,6 +45,13 @@ typedef struct Rule
 	Array commands;
 
 } Rule;
+
+typedef struct File
+{
+	size_t hash;
+	time_t old_time;
+	time_t new_time;
+} File;
 
 int parse(FILE* file);
 int order();

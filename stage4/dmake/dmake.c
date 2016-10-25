@@ -1,7 +1,7 @@
 /* Author: James Ridey 44805632
  *         james.ridey@students.mq.edu.au  
  * Creation Date: 13-10-2016
- * Last Modified: Mon 24 Oct 2016 04:28:23 PM AEDT
+ * Last Modified: Tue 25 Oct 2016 19:16:21 AEDT
  */
 
 #include <stdio.h>
@@ -9,6 +9,7 @@
 #include <stdlib.h>
 
 #include "parser.h"
+#include "file.h"
 
 void usage();
 void finish(int code);
@@ -61,7 +62,9 @@ int main(int argc, char **argv)
 		finish(0);
 	}
 
+	if (read_dmake_file()) finish(output);
 	output = order();
+	if (write_dmake_file()) finish(output);
 
 	//Determining the order of execution failed
 	if (output > 0) finish(output);

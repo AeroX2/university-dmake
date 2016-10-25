@@ -1,11 +1,13 @@
 /* Author: James Ridey 44805632
  *         james.ridey@students.mq.edu.au  
  * Creation Date: 13-10-2016
- * Last Modified: Tue 25 Oct 2016 01:25:41 AEDT
+ * Last Modified: Tue 25 Oct 2016 18:43:22 AEDT
  */
 
 #include "utils.h"
 
+//TODO Use a macro instead
+/*
 bool safe_malloc(void** pointer, size_t size)
 {
 	void* tmp = malloc(size);
@@ -29,6 +31,7 @@ bool safe_realloc(void** pointer, size_t size)
 	*pointer = tmp;
 	return false;
 }
+*/
 
 char* strstrip(char* string, char* strip)
 {
@@ -108,3 +111,30 @@ bool strfind(char* string, size_t length, int (*f)(int))
 	return false;
 }
 
+size_t hash(char* string)
+{
+	/*Borrowed from http://www.partow.net/programming/hashfunctions*/	
+	size_t hash = 5381;
+	size_t i;
+	for (i = 0; string[i] != '\0'; i++)
+	{
+		hash = ((hash << 5) + hash) + string[i];
+	}
+	return hash;
+}
+
+size_t filehash(char* filename)
+{
+	/*Borrowed from http://stackoverflow.com/questions/14002954/c-programming-how-to-read-the-whole-file-contents-into-a-buffer*/
+	FILE* f = fopen(filename, "rb");
+	fseek(f, 0, SEEK_END);
+	long fsize = ftell(f);
+	fseek(f, 0, SEEK_SET); 
+
+	char *string = malloc(fsize + 1);
+	fread(string, fsize, 1, f);
+	fclose(f);
+
+	string[fsize] = '\0';
+	return hash(string);
+}
