@@ -1,7 +1,7 @@
 /* Author: James Ridey 44805632
  *         james.ridey@students.mq.edu.au  
  * Creation Date: 13-10-2016
- * Last Modified: Tue 25 Oct 2016 18:43:22 AEDT
+ * Last Modified: Tue 25 Oct 2016 20:06:57 AEDT
  */
 
 #include "utils.h"
@@ -127,6 +127,8 @@ size_t filehash(char* filename)
 {
 	/*Borrowed from http://stackoverflow.com/questions/14002954/c-programming-how-to-read-the-whole-file-contents-into-a-buffer*/
 	FILE* f = fopen(filename, "rb");
+	if (f == NULL) return 0;
+
 	fseek(f, 0, SEEK_END);
 	long fsize = ftell(f);
 	fseek(f, 0, SEEK_SET); 
