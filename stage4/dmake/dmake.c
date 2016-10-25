@@ -1,7 +1,7 @@
 /* Author: James Ridey 44805632
  *         james.ridey@students.mq.edu.au  
  * Creation Date: 13-10-2016
- * Last Modified: Tue 25 Oct 2016 19:45:26 AEDT
+ * Last Modified: Tue 25 Oct 2016 20:29:50 AEDT
  */
 
 #include <stdio.h>
@@ -62,9 +62,9 @@ int main(int argc, char **argv)
 		finish(0);
 	}
 
-	if (read_dmake_file()) finish(output);
+	//if (read_dmake_file()) finish(output);
 	output = order();
-	if (write_dmake_file()) finish(output);
+	//if (write_dmake_file()) finish(output);
 
 	//Determining the order of execution failed
 	if (output > 0) finish(output);

@@ -1,7 +1,7 @@
 /* Author: James Ridey 44805632
  *         james.ridey@students.mq.edu.au  
  * Creation Date: 13-10-2016
- * Last Modified: Tue 25 Oct 2016 19:35:01 AEDT
+ * Last Modified: Tue 25 Oct 2016 20:50:26 AEDT
  */
 
 #include "parser.h"
@@ -155,9 +155,10 @@ int order()
 		bool target_exists = stat(rule.target, &target_stat) >= 0;
 
 		time_t target_time;
-		Entry* entry = get_hashtable(&file_times, rule.target);
+		//Entry* entry = get_hashtable(&file_times, rule.target);
+		void* entry = NULL;
 		if (entry == NULL) target_time = target_stat.st_mtime;
-		else target_time = (time_t)entry->data;
+		//else target_time = (time_t)entry->data;
 
 		bool fire = rule.dependencies.size == 0;
 		for (ii = 0; ii < rule.dependencies.size; ii++)
@@ -190,7 +191,7 @@ int order()
 			push_array(&rules_to_fire, (void*)i);
 			push_array(&created_files, rule.target);
 
-			Entry* entry = malloc(sizeof(Entry));
+			/*Entry* entry = malloc(sizeof(Entry));
 			entry->key = rule.target;
 
 			size_t hash = filehash(rule.target);
@@ -198,7 +199,7 @@ int order()
 			file->hash = hash;
 			file->old_time = target_time;
 			entry->data = file;
-			push_hashtable(&file_times, entry);
+			push_hashtable(&file_times, entry);*/
 		}
 	}
 	return SUCCESS;
@@ -282,7 +283,7 @@ int execute()
 			}
 		}
 
-		Entry* entry = get_hashtable(&file_times, rule.target);
+		/*Entry* entry = get_hashtable(&file_times, rule.target);
 		if (entry != NULL)
 		{
 			File* file = (File*)entry->data;
@@ -293,7 +294,7 @@ int execute()
 				utime(rule.target, &new_time);
 				file->new_time = time(NULL);
 			}
-		}
+		}*/
 	}
 
 	return SUCCESS;
@@ -354,7 +355,7 @@ void free_rules()
 	}
 
 	free_array(&rules);
-	free_array(&rules_to_fire);
-	free_array(&created_files);
+	free_array_fun(&rules_to_fire, NULL);
+	free_array_fun(&created_files, NULL);
 }
 
