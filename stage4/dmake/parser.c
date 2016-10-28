@@ -1,7 +1,7 @@
 /* Author: James Ridey 44805632
  *         james.ridey@students.mq.edu.au  
  * Creation Date: 13-10-2016
- * Last Modified: Sat 29 Oct 2016 03:47:58 AEDT
+ * Last Modified: Sat 29 Oct 2016 04:00:17 AM AEDT
  */
 
 #include "parser.h"
@@ -253,13 +253,13 @@ int execute()
 						open_bracket = true;
 						break;
 					case ':':
-						if (!open_bracket) return MODIFIER;
 						index--;
 						seconds = false;
+						if (!open_bracket) stop = true;
 						break;
 					case '.':
-						if (!open_bracket) return MODIFIER;
 						index--;
+						if (!open_bracket) stop = true;
 						break;
 					case ']':
 						open_bracket = false;
