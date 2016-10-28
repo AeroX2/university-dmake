@@ -25,12 +25,15 @@
 #define SYNTAX_RULE     2
 #define NO_RULE_TO_FIRE 3
 #define FAILURE_FORK    4
+#define INTERRUPT       5
 
 #define AT_MODIFIER        1 << 1
 #define DASH_MODIFIER      1 << 2
 #define EQUALS_MODIFIER    1 << 3
 #define STAR_MODIFIER      1 << 4
 #define AMPERSAND_MODIFIER 1 << 5
+
+volatile extern bool terminate;
 
 typedef struct Command
 {
@@ -62,5 +65,7 @@ void debug_stage2();
 //void debug_stage3();
 
 void free_rules();
+
+void child_signal_handler();
 
 #endif

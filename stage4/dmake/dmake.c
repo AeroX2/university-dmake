@@ -1,7 +1,7 @@
 /* Author: James Ridey 44805632
  *         james.ridey@students.mq.edu.au  
  * Creation Date: 13-10-2016
- * Last Modified: Tue 25 Oct 2016 20:29:50 AEDT
+ * Last Modified: Fri 28 Oct 2016 11:20:14 PM AEDT
  */
 
 #include <stdio.h>
@@ -11,11 +11,16 @@
 #include "parser.h"
 #include "file.h"
 
+volatile bool terminate = false;
+
 void usage();
 void finish(int code);
+void signal_handler();
 
 int main(int argc, char **argv) 
 {
+	//signal(SIGINT, signal_handler);
+
 	char* filename = "Dmakefile";
 	int opt = -1;
 	int debug = 0;
@@ -45,14 +50,19 @@ int main(int argc, char **argv)
         }
     }
 
-	FILE* file = fopen(filename, "r");
-	if (file == NULL)
+	FILE* file;
+	if (*filename == '-') file = stdin;
+	else
 	{
-		fprintf(stderr, "Error: Could not read Dmakefile\n");
-		exit(1);
+		file = fopen(filename, "r");
+		if (file == NULL)
+		{
+			fprintf(stderr, "Error: Could not read Dmakefile\n");
+			exit(1);
+		}
 	}
 	int output = parse(file);
-	fclose(file);
+	if (*filename != '-') fclose(file);
 
 	//Parsing the file had an error
 	if (output > 0) finish(output);
@@ -93,4 +103,10 @@ void finish(int code)
 {
 	free_rules();
 	exit(code);
+}
+
+void signal_handler()
+{
+	printf("Interrupt detected\n");
+	terminate = false;
 }

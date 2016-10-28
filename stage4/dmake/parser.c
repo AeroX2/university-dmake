@@ -1,7 +1,7 @@
 /* Author: James Ridey 44805632
  *         james.ridey@students.mq.edu.au  
  * Creation Date: 13-10-2016
- * Last Modified: Tue 25 Oct 2016 20:50:26 AEDT
+ * Last Modified: Fri 28 Oct 2016 11:20:14 PM AEDT
  */
 
 #include "parser.h"
@@ -132,6 +132,8 @@ int parse(FILE* file)
 
 			in_rule = true;
 		}
+
+		if (terminate) return INTERRUPT;
 	}
 	free(line);
 	free(line_raw);
@@ -201,6 +203,8 @@ int order()
 			entry->data = file;
 			push_hashtable(&file_times, entry);*/
 		}
+
+		if (terminate) return INTERRUPT;
 	}
 	return SUCCESS;
 }
@@ -252,6 +256,8 @@ int execute()
 			else if (pid <= 0)
 			{
 				//Child
+				//signal(SIGINT, child_signal_handler);
+
 				int fd = open("/dev/null", O_WRONLY);
 				if (modifiers & STAR_MODIFIER) dup2(fd, 1);
 				if (modifiers & AMPERSAND_MODIFIER) dup2(fd, 2);
@@ -280,6 +286,8 @@ int execute()
 					}
 					if (!(modifiers & DASH_MODIFIER) && !(modifiers & EQUALS_MODIFIER)) return status;	
 				}
+
+				if (terminate) return INTERRUPT;
 			}
 		}
 
@@ -359,3 +367,8 @@ void free_rules()
 	free_array_fun(&created_files, NULL);
 }
 
+void child_signal_handler()
+{
+	printf("Child interrupt detected\n");
+	terminate = true;
+}
