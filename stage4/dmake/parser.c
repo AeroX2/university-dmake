@@ -1,7 +1,7 @@
 /* Author: James Ridey 44805632
  *         james.ridey@students.mq.edu.au  
  * Creation Date: 13-10-2016
- * Last Modified: Sat 29 Oct 2016 01:36:22 AEDT
+ * Last Modified: Sat 29 Oct 2016 01:57:57 AM AEDT
  */
 
 #include "parser.h"
@@ -315,8 +315,8 @@ int execute()
 				if (modifiers & AMPERSAND_MODIFIER) dup2(fd, 2);
 				close(fd);
 				
-				int x = timeout.tv_sec > 0 ? log10(timeout.tv_sec) : 0;
-				int y = timeout.tv_usec > 0 ? log10(timeout.tv_usec/10000) : 0;
+				size_t x = count_digits((long)timeout.tv_sec);
+				size_t y = count_digits(timeout.tv_usec/10000);
 				char* time = malloc(1+x+y);
 				sprintf(time, "%llu.%lu", (long long)timeout.tv_sec, timeout.tv_usec);
 

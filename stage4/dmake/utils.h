@@ -13,4 +13,5 @@ bool strfind(char* string, size_t length, int (*f)(int));
 size_t hash(char* string);
 size_t filehash(char* filename);
 
+size_t count_digits(long long number);
 #endif

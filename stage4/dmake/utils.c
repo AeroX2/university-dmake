@@ -1,7 +1,7 @@
 /* Author: James Ridey 44805632
  *         james.ridey@students.mq.edu.au  
  * Creation Date: 13-10-2016
- * Last Modified: Tue 25 Oct 2016 20:06:57 AEDT
+ * Last Modified: Sat 29 Oct 2016 01:58:45 AM AEDT
  */
 
 #include "utils.h"
@@ -139,4 +139,15 @@ size_t filehash(char* filename)
 
 	string[fsize] = '\0';
 	return hash(string);
+}
+
+size_t count_digits(long long number)
+{
+	size_t length = 0;
+	long long temp;
+	for(temp = number; temp >= 1; temp /= 10)
+	{
+		length++;
+	} 
+	return length;
 }
