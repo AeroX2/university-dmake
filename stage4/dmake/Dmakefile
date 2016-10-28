@@ -1,3 +1,4 @@
 sleep:
-	sleep 100000
-	sleep 1000
+	[5] sleep 100000
+	#[1:4] sleep 1000
+	#[1:4:3] sleep 1000

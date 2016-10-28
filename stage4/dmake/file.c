@@ -1,7 +1,7 @@
 /* Author: James Ridey 44805632
  *         james.ridey@students.mq.edu.au  
  * Creation Date: 25-10-2016
- * Last Modified: Tue 25 Oct 2016 19:45:47 AEDT
+ * Last Modified: Tue 25 Oct 2016 21:49:09 AEDT
  */
 
 #include "file.h"
@@ -37,8 +37,20 @@ bool read_dmake_file()
 
 bool write_dmake_file()
 {
-	/*FILE* file = fopen(".dmake", "wb");
-	//TODO Go through every element in the hashtable and store it in the file
-	fclose(file);*/
+	FILE* f = fopen(".dmake", "wb");
+
+	size_t i;
+	size_t ii;
+	for (i = 0; i < file_times.buckets.size; i++)
+	{
+		Array* array = (Array*)file_times.buckets.data[i];
+		for (ii = 0; ii < array->size; ii++)
+		{
+			Entry entry = *(Entry*)array->data[ii];
+			File file = *(File*)entry.data;
+			fprintf(f, "%s,%lu\n", entry.key, file.new_time);
+		}
+	}
+	fclose(f);
 	return false;
 }

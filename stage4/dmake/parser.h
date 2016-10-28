@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <stdbool.h>
 
+#include <math.h>
 #include <time.h>
 #include <fcntl.h>
 #include <utime.h>
@@ -24,8 +25,10 @@
 #define SYNTAX_COLON    1
 #define SYNTAX_RULE     2
 #define NO_RULE_TO_FIRE 3
-#define FAILURE_FORK    4
-#define INTERRUPT       5
+#define MODIFIER        4
+#define FAILURE_FORK    5
+#define INTERRUPT       6
+#define NUMBER_FORMAT   7
 
 #define AT_MODIFIER        1 << 1
 #define DASH_MODIFIER      1 << 2

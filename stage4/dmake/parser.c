@@ -1,7 +1,7 @@
 /* Author: James Ridey 44805632
  *         james.ridey@students.mq.edu.au  
  * Creation Date: 13-10-2016
- * Last Modified: Fri 28 Oct 2016 11:20:14 PM AEDT
+ * Last Modified: Sat 29 Oct 2016 01:36:22 AEDT
  */
 
 #include "parser.h"
@@ -46,7 +46,7 @@ int parse(FILE* file)
 		//TODO strlen is expensive replace with length and length_raw
 		length = strlen(line);
 
-		//TODO This detects backslashes with spaces at the end but line 50 needs to be fixed before you can use this
+		//TODO This detects backslashes with spaces at the end but line 34 needs to be fixed before you can use this
 		/*bool stop = false;
 		for (i = length+1; i-- > 0;)
 		{
@@ -132,8 +132,6 @@ int parse(FILE* file)
 
 			in_rule = true;
 		}
-
-		if (terminate) return INTERRUPT;
 	}
 	free(line);
 	free(line_raw);
@@ -158,9 +156,9 @@ int order()
 
 		time_t target_time;
 		//Entry* entry = get_hashtable(&file_times, rule.target);
-		void* entry = NULL;
+		Entry* entry = NULL;
 		if (entry == NULL) target_time = target_stat.st_mtime;
-		//else target_time = (time_t)entry->data;
+		else target_time = ((File*)entry->data)->old_time;
 
 		bool fire = rule.dependencies.size == 0;
 		for (ii = 0; ii < rule.dependencies.size; ii++)
@@ -192,10 +190,13 @@ int order()
 		{
 			push_array(&rules_to_fire, (void*)i);
 			push_array(&created_files, rule.target);
-
-			/*Entry* entry = malloc(sizeof(Entry));
-			entry->key = rule.target;
-
+			
+			/*if (entry == NULL)
+			{
+				entry = malloc(sizeof(Entry));
+				entry->key = rule.target;
+			}
+			
 			size_t hash = filehash(rule.target);
 			File* file = malloc(sizeof(File));
 			file->hash = hash;
@@ -203,8 +204,6 @@ int order()
 			entry->data = file;
 			push_hashtable(&file_times, entry);*/
 		}
-
-		if (terminate) return INTERRUPT;
 	}
 	return SUCCESS;
 }
@@ -223,10 +222,17 @@ int execute()
 			Command command = *(Command*)rule.commands.data[ii];
 			char modifiers = 0;
 
+			char* times[3] = {NULL};
+			size_t index = 2;
+
+			bool open_bracket = false;
+			bool seconds = true;
+
 			for (iii = 0; command.command[iii] != '\0'; iii++)
 			{
 				bool stop = false;
-				switch (command.command[iii])
+				char c = command.command[iii];
+				switch (c)
 				{
 					case '@':
 						modifiers |= AT_MODIFIER;
@@ -243,13 +249,59 @@ int execute()
 					case '&':
 						modifiers |= AMPERSAND_MODIFIER;
 						break;
+					case '[':
+						open_bracket = true;
+						break;
+					case ':':
+						if (!open_bracket) return MODIFIER;
+						index--;
+						seconds = false;
+						break;
+					case '.':
+						if (!open_bracket) return MODIFIER;
+						index--;
+						break;
+					case ']':
+						open_bracket = false;
+						break;
 					case ' ':
 						break;
 					default:
-						stop = true;
+						if (!isdigit(c)) 
+						{
+							stop = true;
+							break;
+						}
+
+						size_t length = times[index] == NULL ? 0 : strlen(times[index]);
+						if (length == 0) times[index] = calloc(2,sizeof(char));
+						else times[index] = realloc(times[index], length+2);
+
+						times[index] = strncat(times[index], &c, 1);
+						times[index][length+1] = '\0';
 				}
 				if (stop) break;
 			}
+
+			struct timeval timeout = {0,0};
+			int i;
+			int j = 1;
+			for (i = 0; i < 3; i++)
+			{
+				if (times[i] == NULL) continue;
+
+				int time = atoi(times[i]);
+				if (time == 0) return NUMBER_FORMAT;
+
+				if (seconds && i == 1) timeout.tv_usec = time * 10000;
+				else
+				{
+					timeout.tv_sec += time * j;
+					j *= 60;
+				}
+			}
+
+			for (i = 0; i < 3; i++) free(times[i]);
 
 			pid_t pid = fork();
 			if (pid == -1) return FAILURE_FORK;
@@ -263,7 +315,14 @@ int execute()
 				if (modifiers & AMPERSAND_MODIFIER) dup2(fd, 2);
 				close(fd);
 				
-				execl("/bin/sh","/bin/sh","-c",command.command + iii,NULL);
+				int x = timeout.tv_sec > 0 ? log10(timeout.tv_sec) : 0;
+				int y = timeout.tv_usec > 0 ? log10(timeout.tv_usec/10000) : 0;
+				char* time = malloc(1+x+y);
+				sprintf(time, "%llu.%lu", (long long)timeout.tv_sec, timeout.tv_usec);
+
+				execlp("timeout","timeout",time,"/bin/sh","-c",command.command + iii,NULL);
+
+				free(time);
 				_exit(0);
 			}
 			else
@@ -291,6 +350,7 @@ int execute()
 			}
 		}
 
+		//There should always be an entry
 		/*Entry* entry = get_hashtable(&file_times, rule.target);
 		if (entry != NULL)
 		{
@@ -302,6 +362,11 @@ int execute()
 				utime(rule.target, &new_time);
 				file->new_time = time(NULL);
 			}
+		}
+		else
+		{
+			fprintf(stderr,"Something went terribly wrong\n");
+			return 10;
 		}*/
 	}
 
@@ -367,8 +432,3 @@ void free_rules()
 	free_array_fun(&created_files, NULL);
 }
 
-void child_signal_handler()
-{
-	printf("Child interrupt detected\n");
-	terminate = true;
-}
