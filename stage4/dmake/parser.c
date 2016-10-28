@@ -1,7 +1,7 @@
 /* Author: James Ridey 44805632
  *         james.ridey@students.mq.edu.au  
  * Creation Date: 13-10-2016
- * Last Modified: Sat 29 Oct 2016 01:57:57 AM AEDT
+ * Last Modified: Sat 29 Oct 2016 03:47:58 AEDT
  */
 
 #include "parser.h"
@@ -320,7 +320,12 @@ int execute()
 				char* time = malloc(1+x+y);
 				sprintf(time, "%llu.%lu", (long long)timeout.tv_sec, timeout.tv_usec);
 
-				execlp("timeout","timeout",time,"/bin/sh","-c",command.command + iii,NULL);
+				struct itimerval timerval = {};
+				timerval.it_interval.tv_sec = 0;
+				timerval.it_interval.tv_usec = 0;
+				timerval.it_value = timeout;
+				setitimer(ITIMER_REAL,&timerval,NULL);
+				execlp("/bin/sh","/bin/sh","-c",command.command + iii,NULL);
 
 				free(time);
 				_exit(0);
@@ -336,7 +341,7 @@ int execute()
 
 				int status;
 				waitpid(pid, &status, 0);
-				if (status != 0)
+				if (status != 0 && WTERMSIG(status) != SIGALRM)
 				{
 					if (!(modifiers & EQUALS_MODIFIER)) 
 					{
