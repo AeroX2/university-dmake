@@ -1,7 +1,7 @@
 /* Author: James Ridey 44805632
  *         james.ridey@students.mq.edu.au  
  * Creation Date: 13-10-2016
- * Last Modified: Tue 01 Nov 2016 01:47:33 AM AEDT
+ * Last Modified: Tue 01 Nov 2016 01:57:03 AM AEDT
  */
 
 #include "parser.h"
@@ -192,23 +192,21 @@ int execute(bool debug)
 		Rule rule = *(Rule*)rules.data[(size_t)rules_to_fire.data[i]];
 
 		//Check if one of the dependencies is different
-		/*bool next = false;
+		bool next = true;
 		size_t j;
 		for (j = 0; j < rule.dependencies.size; j++)
 		{
-			next = true;
 			char* dependency = rule.dependencies.data[j];
 			if (!exists_hashtable(&target_dont_fire, dependency)) next = false;
-		}*/
+		}
 
-		bool next = false;
+		char* new_name = malloc(strlen(rule.target)+3);
+		strcpy(new_name, ".~");
+		strcat(new_name, rule.target);	
 
-		if (!next) 
+		if (!next || rule.dependencies.size == 0) 
 		{
 			//Make backup copy of file
-			char* new_name = malloc(strlen(rule.target)+3);
-			strcpy(new_name, ".~");
-			strcat(new_name, rule.target);	
 			rename(rule.target, new_name);
 
 			for (ii = 0; ii < rule.commands.size; ii++)
@@ -224,7 +222,7 @@ int execute(bool debug)
 			}
 		}
 
-		/*char* empty_file = malloc(strlen(rule.target)+3);
+		char* empty_file = malloc(strlen(rule.target)+3);
 		strcpy(empty_file, ".@");
 		strcat(empty_file, rule.target);
 		if (!filecmp(rule.target, new_name))
@@ -245,7 +243,7 @@ int execute(bool debug)
 			if(access(empty_file, F_OK) != -1) unlink(empty_file);
 		}
 		free(empty_file);
-		free(new_name);*/
+		free(new_name);
 	}
 
 	return SUCCESS;

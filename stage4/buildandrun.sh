@@ -5,7 +5,7 @@ export PATH="$PATH:`pwd`/dmake"
 
 rm -r test*
 tar xf stage4.tar
-cp stage3/test* -rp .
+cp stage4/test* -rp .
 
 for i in {1..10}
 do
