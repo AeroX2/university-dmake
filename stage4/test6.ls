@@ -1,9 +1,0 @@
-total 32
-0 .@say.o
-4 OPTIONS.txt
-4 README.txt
-4 Dmake66
-4 say.h
-8 say
-4 say.o
-4 say.c

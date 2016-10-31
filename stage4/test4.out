@@ -1,3 +1,0 @@
-gcc -c cat.c
-Dmake: File cat.o unchanged.
-gcc -o cat cat.o

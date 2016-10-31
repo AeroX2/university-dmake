@@ -63,7 +63,7 @@ typedef struct File
 int parse(FILE* file);
 int order();
 int execute(bool debug);
-int execute_modifiers(char* command, char** times, int* offset);
+void execute_modifiers(char* command, int* modifiers, char** times, int* offset);
 int execute_command(char* command, int modifiers, char** times, int offset);
 
 void debug_stage1();

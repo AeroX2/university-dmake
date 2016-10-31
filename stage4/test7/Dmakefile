@@ -1,6 +1,0 @@
-echo: echo.o
-	gcc -o echo echo.o
-
-echo.o :   echo.c 	  echo.h
-	 gcc -c echo.c
-

@@ -1,7 +1,7 @@
 /* Author: James Ridey 44805632
  *         james.ridey@students.mq.edu.au  
  * Creation Date: 13-10-2016
- * Last Modified: Tue 01 Nov 2016 01:14:24 AEDT
+ * Last Modified: Tue 01 Nov 2016 01:47:33 AM AEDT
  */
 
 #include "parser.h"
@@ -45,23 +45,6 @@ int parse(FILE* file)
 
 		//TODO strlen is expensive replace with length and length_raw
 		length = strlen(line);
-
-		//TODO This detects backslashes with spaces at the end but line 34 needs to be fixed before you can use this
-		/*bool stop = false;
-		for (i = length+1; i-- > 0;)
-		{
-			if (line[i] == '\\')
-			{
-				stop = true;
-				break;
-			}
-			else if (isalnum(line[i])) break;
-		}
-		if (stop) 
-		{
-			append = true;
-			continue;
-		}*/
 		if (line[length-2] == '\\')
 		{
 			append = true;
@@ -235,8 +218,9 @@ int execute(bool debug)
 				char* times[3] = {NULL};
 				int modifiers = 0;
 				int offset = 0;
-				modifiers = execute_modifiers(command.command, times, &offset);
-				execute_command(command.command, modifiers, times, offset);
+				execute_modifiers(command.command, &modifiers, times, &offset);
+				int error = execute_command(command.command, modifiers, times, offset);
+				if (error != 0) return error;
 			}
 		}
 
@@ -267,11 +251,9 @@ int execute(bool debug)
 	return SUCCESS;
 }
 
-int execute_modifiers(char* command, char** times, int* offset)
+void execute_modifiers(char* command, int* modifiers, char** times, int* offset)
 {
-	int modifiers = 0;
 	size_t index = 2;
-
 	bool open_bracket = false;
 
 	size_t i;
@@ -282,30 +264,30 @@ int execute_modifiers(char* command, char** times, int* offset)
 		switch (c)
 		{
 			case '@':
-				modifiers |= AT_MODIFIER;
+				*modifiers |= AT_MODIFIER;
 				break;
 			case '-':
-				modifiers |= DASH_MODIFIER;
+				*modifiers |= DASH_MODIFIER;
 				break;
 			case '=':
-				modifiers |= EQUALS_MODIFIER;
+				*modifiers |= EQUALS_MODIFIER;
 				break;
 			case '*':
-				modifiers |= STAR_MODIFIER;
+				*modifiers |= STAR_MODIFIER;
 				break;
 			case '&':
-				modifiers |= AMPERSAND_MODIFIER;
+				*modifiers |= AMPERSAND_MODIFIER;
 				break;
 			case '[':
 				open_bracket = true;
 				break;
 			case ':':
-				if (!open_bracket) return MODIFIER;
+				if (!open_bracket) stop = true;
 				index--;
-				modifiers |= SECONDS_MODIFIER;
+				*modifiers |= SECONDS_MODIFIER;
 				break;
 			case '.':
-				if (!open_bracket) return MODIFIER;
+				if (!open_bracket) stop = true; 
 				index--;
 				break;
 			case ']':
@@ -330,7 +312,6 @@ int execute_modifiers(char* command, char** times, int* offset)
 		if (stop) break;
 	}
 	*offset = i;
-	return modifiers;
 }
 
 int execute_command(char* command, int modifiers, char** times, int offset)

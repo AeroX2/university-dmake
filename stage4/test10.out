@@ -1,7 +1,0 @@
-gcc -c cat.c
-gcc -c echo.c
-Dmake: File echo.o unchanged.
-gcc -o echo echo.o usage.o
-gcc -o say echo.o usage.o
-Dmake: File echo unchanged.
-gcc -o cat cat.o

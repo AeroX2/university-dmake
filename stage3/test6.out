@@ -1,4 +1,0 @@
-gcc -c say.c
-gcc -o say say.o
-./say "everybody loves Christmas" > out-say.txt
-grep everybody out-say.txt
