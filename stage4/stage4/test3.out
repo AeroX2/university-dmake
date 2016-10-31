@@ -1,4 +1,0 @@
-gcc -c echo.c
-Dmake: File echo.o unchanged.
-gcc -o echo echo.o
-Dmake: File echo unchanged.

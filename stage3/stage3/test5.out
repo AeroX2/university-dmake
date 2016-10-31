@@ -1,3 +1,0 @@
-rm say.o
-gcc -c say.c
-gcc -o say say.o

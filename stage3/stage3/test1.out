@@ -1,1 +1,0 @@
-gcc -o echo echo.c

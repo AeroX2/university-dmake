@@ -1,4 +1,0 @@
-# echo is a program that echos the command line parameters.
-echo: echo.c
-	gcc -o echo echo.c
-

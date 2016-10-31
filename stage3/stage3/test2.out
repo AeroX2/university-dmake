@@ -1,2 +1,0 @@
-Compiling your program
-gcc -o say say.c

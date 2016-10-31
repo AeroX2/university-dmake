@@ -1,5 +1,0 @@
-# say is a program that says the command line parameters.
-say: say.c
-    @echo "Compiling your program"
-  gcc -o say say.c
-
