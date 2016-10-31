@@ -1,7 +1,7 @@
 /* Author: James Ridey 44805632
  *         james.ridey@students.mq.edu.au  
  * Creation Date: 13-10-2016
- * Last Modified: Sat 29 Oct 2016 04:00:17 AM AEDT
+ * Last Modified: Mon 31 Oct 2016 20:26:53 AEDT
  */
 
 #include "parser.h"
@@ -151,14 +151,19 @@ int order()
 	{
 		Rule rule = *(Rule*)rules.data[i];	
 
+		char* empty_file = malloc(strlen(rule.target)+3);
+		strcat(empty_file, ".@");	
+		strcat(empty_file, rule.target);	
+
 		struct stat target_stat;
+		struct stat timestamp_stat;
 		bool target_exists = stat(rule.target, &target_stat) >= 0;
+		bool timestamp_exists = stat(empty_file, &target_stat) >= 0;
+		free(empty_file);
 
 		time_t target_time;
-		//Entry* entry = get_hashtable(&file_times, rule.target);
-		Entry* entry = NULL;
-		if (entry == NULL) target_time = target_stat.st_mtime;
-		else target_time = ((File*)entry->data)->old_time;
+		if (timestamp_exists) target_time = timestamp_stat.st_mtime;
+		else target_time = target_stat.st_mtime;
 
 		bool fire = rule.dependencies.size == 0;
 		for (ii = 0; ii < rule.dependencies.size; ii++)
@@ -190,19 +195,6 @@ int order()
 		{
 			push_array(&rules_to_fire, (void*)i);
 			push_array(&created_files, rule.target);
-			
-			/*if (entry == NULL)
-			{
-				entry = malloc(sizeof(Entry));
-				entry->key = rule.target;
-			}
-			
-			size_t hash = filehash(rule.target);
-			File* file = malloc(sizeof(File));
-			file->hash = hash;
-			file->old_time = target_time;
-			entry->data = file;
-			push_hashtable(&file_times, entry);*/
 		}
 	}
 	return SUCCESS;
@@ -216,6 +208,12 @@ int execute()
 	for (i = 0; i < rules_to_fire.size; i++)
 	{
 		Rule rule = *(Rule*)rules.data[(size_t)rules_to_fire.data[i]];
+
+		//Make backup copy of file
+		char* new_name = malloc(strlen(rule.target)+3);
+		strcat(new_name, ".~");
+		strcat(new_name, rule.target);	
+		rename(rule.target, new_name);
 
 		for (ii = 0; ii < rule.commands.size; ii++)
 		{
@@ -253,13 +251,13 @@ int execute()
 						open_bracket = true;
 						break;
 					case ':':
+						if (!open_bracket) return MODIFIER;
 						index--;
 						seconds = false;
-						if (!open_bracket) stop = true;
 						break;
 					case '.':
+						if (!open_bracket) return MODIFIER;
 						index--;
-						if (!open_bracket) stop = true;
 						break;
 					case ']':
 						open_bracket = false;
@@ -355,24 +353,24 @@ int execute()
 			}
 		}
 
-		//There should always be an entry
-		/*Entry* entry = get_hashtable(&file_times, rule.target);
-		if (entry != NULL)
+		char* empty_file = malloc(strlen(rule.target)+3);
+		strcat(empty_file, ".@");
+		strcat(empty_file, rule.target);	
+		if (!filecmp(rule.target, new_name))
 		{
-			File* file = (File*)entry->data;
-			if (filehash(rule.target) != file->hash)
-			{
-				struct utimbuf new_time;
-				new_time.modtime = file->old_time;
-				utime(rule.target, &new_time);
-				file->new_time = time(NULL);
-			}
+			printf("Dmake: File %s unchanged.\n", rule.target);
+			rename(new_name, rule.target);
+			int handle = open(empty_file, O_RDWR | O_CREAT, S_IRUSR | S_IRGRP | S_IROTH);
+			close(handle);
 		}
-		else
+		else 
 		{
-			fprintf(stderr,"Something went terribly wrong\n");
-			return 10;
-		}*/
+			printf("Dmake: File %s changed.\n", rule.target);
+			unlink(new_name);
+			if(access(empty_file, F_OK) != -1) unlink(empty_file);
+		}
+		free(empty_file);
+		free(new_name);
 	}
 
 	return SUCCESS;

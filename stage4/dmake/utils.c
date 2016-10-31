@@ -1,7 +1,7 @@
 /* Author: James Ridey 44805632
  *         james.ridey@students.mq.edu.au  
  * Creation Date: 13-10-2016
- * Last Modified: Sat 29 Oct 2016 01:58:45 AM AEDT
+ * Last Modified: Mon 31 Oct 2016 20:02:55 AEDT
  */
 
 #include "utils.h"
@@ -139,6 +139,33 @@ size_t filehash(char* filename)
 
 	string[fsize] = '\0';
 	return hash(string);
+}
+
+bool filecmp(char* file1, char* file2)
+{
+	struct stat file1_stat;
+	struct stat file2_stat;
+	stat(file1, &file1_stat);
+	stat(file2, &file2_stat);
+	if (file1_stat.st_size != file2_stat.st_size) return true;
+
+	int handle1 = open(file1, O_RDONLY);
+	int handle2 = open(file2, O_RDONLY);
+	char buf1[1024];
+	char buf2[1024];
+	while (read(handle1, &buf1, sizeof(buf1)) && read(handle2, &buf2, sizeof(buf2)))
+	{
+		if (strcmp(buf1, buf2) != 0) 
+		{
+			close(handle1);
+			close(handle2);
+			return true;
+		}
+	}
+	close(handle1);
+	close(handle2);
+
+	return false;	
 }
 
 size_t count_digits(long long number)
