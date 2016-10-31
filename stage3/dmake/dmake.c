@@ -1,7 +1,7 @@
 /* Author: James Ridey 44805632
  *         james.ridey@students.mq.edu.au  
  * Creation Date: 13-10-2016
- * Last Modified: Tue 18 Oct 2016 15:17:15 AEDT
+ * Last Modified: Mon 31 Oct 2016 09:51:13 PM AEDT
  */
 
 #include <stdio.h>
@@ -10,11 +10,16 @@
 
 #include "parser.h"
 
+volatile bool terminate = false;
+
 void usage();
 void finish(int code);
+void signal_handler();
 
 int main(int argc, char **argv) 
 {
+	//signal(SIGINT, signal_handler);
+
 	char* filename = "Dmakefile";
 	int opt = -1;
 	int debug = 0;
@@ -44,37 +49,39 @@ int main(int argc, char **argv)
         }
     }
 
-	FILE* file = fopen(filename, "r");
-	if (file == NULL)
+	FILE* file;
+	if (*filename == '-') file = stdin;
+	else
 	{
-		fprintf(stderr, "Error: Could not read Dmakefile\n");
-		exit(1);
+		file = fopen(filename, "r");
+		if (file == NULL)
+		{
+			fprintf(stderr, "Error: Could not read Dmakefile\n");
+			exit(1);
+		}
 	}
 	int output = parse(file);
-	fclose(file);
+	if (*filename != '-') fclose(file);
 
 	//Parsing the file had an error
 	if (output > 0) finish(output);
+	if (debug == 1) 
+	{
+		debug_stage1();
+		finish(0);
+	}
 
 	output = order();
 
 	//Determining the order of execution failed
 	if (output > 0) finish(output);
-
-	output = execute();
-	switch (debug)
+	if (debug == 2) 
 	{
-		case 1:
-			debug_stage1();
-			break;
-		case 2:
-			debug_stage2();
-			break;
-		//case 3:
-			//debug_stage3();
-			//break;
+		debug_stage2();
+		finish(0);
 	}
 
+	output = execute(debug == 4);
 	finish(output);
 
     return 0;
@@ -93,4 +100,10 @@ void finish(int code)
 {
 	free_rules();
 	exit(code);
+}
+
+void signal_handler()
+{
+	printf("Interrupt detected\n");
+	terminate = false;
 }

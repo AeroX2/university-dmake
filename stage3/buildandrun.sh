@@ -3,6 +3,10 @@
 gcc -g -Wall dmake/*.c dmake/*.h -o dmake/dmake
 export PATH="$PATH:`pwd`/dmake"
 
+rm -r test*
+tar xf stage3.tar
+cp stage3/test* -rp .
+
 for i in {1..10}
 do
 	echo $i

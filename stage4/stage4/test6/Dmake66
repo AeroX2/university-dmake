@@ -1,0 +1,8 @@
+say: say.o
+    @echo Linking your program
+	gcc -o say say.o
+
+say.o :   say.c 	  say.h
+ 	@echo Compiling your C source code
+	 gcc -c say.c
+

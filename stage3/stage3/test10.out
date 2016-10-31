@@ -1,0 +1,6 @@
+rm junk
+rm oops
+gcc -c cat.c
+Linking the cat program
+gcc -o cat cat.o
+gcc -c echo.c

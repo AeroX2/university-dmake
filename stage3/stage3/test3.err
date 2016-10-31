@@ -1,0 +1,2 @@
+rm: cannot remove `say.o': No such file or directory
+*** Exited with error 1 ***

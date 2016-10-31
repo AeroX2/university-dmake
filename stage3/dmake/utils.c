@@ -1,11 +1,13 @@
 /* Author: James Ridey 44805632
  *         james.ridey@students.mq.edu.au  
  * Creation Date: 13-10-2016
- * Last Modified: Tue 18 Oct 2016 16:07:30 AEDT
+ * Last Modified: Mon 31 Oct 2016 20:02:55 AEDT
  */
 
 #include "utils.h"
 
+//TODO Use a macro instead
+/*
 bool safe_malloc(void** pointer, size_t size)
 {
 	void* tmp = malloc(size);
@@ -29,6 +31,7 @@ bool safe_realloc(void** pointer, size_t size)
 	*pointer = tmp;
 	return false;
 }
+*/
 
 char* strstrip(char* string, char* strip)
 {
@@ -108,3 +111,70 @@ bool strfind(char* string, size_t length, int (*f)(int))
 	return false;
 }
 
+size_t hash(char* string)
+{
+	/*Borrowed from http://www.partow.net/programming/hashfunctions*/	
+	size_t hash = 5381;
+	size_t i;
+	for (i = 0; string[i] != '\0'; i++)
+	{
+		hash = ((hash << 5) + hash) + string[i];
+	}
+	return hash;
+}
+
+size_t filehash(char* filename)
+{
+	/*Borrowed from http://stackoverflow.com/questions/14002954/c-programming-how-to-read-the-whole-file-contents-into-a-buffer*/
+	FILE* f = fopen(filename, "rb");
+	if (f == NULL) return 0;
+
+	fseek(f, 0, SEEK_END);
+	long fsize = ftell(f);
+	fseek(f, 0, SEEK_SET); 
+
+	char *string = malloc(fsize + 1);
+	fread(string, fsize, 1, f);
+	fclose(f);
+
+	string[fsize] = '\0';
+	return hash(string);
+}
+
+bool filecmp(char* file1, char* file2)
+{
+	struct stat file1_stat;
+	struct stat file2_stat;
+	stat(file1, &file1_stat);
+	stat(file2, &file2_stat);
+	if (file1_stat.st_size != file2_stat.st_size) return true;
+
+	int handle1 = open(file1, O_RDONLY);
+	int handle2 = open(file2, O_RDONLY);
+	char buf1[1024];
+	char buf2[1024];
+	while (read(handle1, &buf1, sizeof(buf1)) && read(handle2, &buf2, sizeof(buf2)))
+	{
+		if (strcmp(buf1, buf2) != 0) 
+		{
+			close(handle1);
+			close(handle2);
+			return true;
+		}
+	}
+	close(handle1);
+	close(handle2);
+
+	return false;	
+}
+
+size_t count_digits(long long number)
+{
+	size_t length = 0;
+	long long temp;
+	for(temp = number; temp >= 1; temp /= 10)
+	{
+		length++;
+	} 
+	return length;
+}

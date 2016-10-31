@@ -1,0 +1,2 @@
+gcc -c echo.c
+gcc -o echo echo.o

@@ -1,7 +1,7 @@
 /* Author: James Ridey 44805632
  *         james.ridey@students.mq.edu.au  
  * Creation Date: 13-10-2016
- * Last Modified: Tue 01 Nov 2016 12:33:11 AM AEDT
+ * Last Modified: Tue 01 Nov 2016 01:14:24 AEDT
  */
 
 #include "parser.h"
@@ -157,8 +157,8 @@ int order()
 
 		struct stat target_stat;
 		struct stat timestamp_stat;
-		bool target_exists = stat(rule.target, &target_stat) >= 0;
-		bool timestamp_exists = stat(empty_file, &timestamp_stat) >= 0;
+		bool target_exists = stat(rule.target, &target_stat) == 0;
+		bool timestamp_exists = stat(empty_file, &timestamp_stat) == 0;
 		free(empty_file);
 
 		time_t target_time;
@@ -179,7 +179,6 @@ int order()
 			if (found) fire = true;
 			else if (stat(dependency, &dependency_stat) == 0)
 			{
-				//printf("Target %s\n", rule.rule_name);
 				if (!target_exists) fire = true;
 				else if (dependency_stat.st_mtime > target_time) fire = true;
 			}

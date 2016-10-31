@@ -1,7 +1,0 @@
-rm   echo.o
-gcc -c echo.c
-gcc -o echo echo.o
-gcc -o say say.o
-gcc: say.o: No such file or directory
-gcc: no input files
-*** Exited with error 1 ***
