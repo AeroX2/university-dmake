@@ -1,0 +1,3 @@
+Compiling your C source code
+gcc -c say.c
+Dmake: File say.o unchanged.

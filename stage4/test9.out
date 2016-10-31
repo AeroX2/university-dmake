@@ -1,0 +1,6 @@
+rm echo.o
+gcc -c cat.c
+gcc -o cat cat.o
+gcc -c echo.c
+gcc -o echo echo.o
+Dmake: File echo unchanged.
