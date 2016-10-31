@@ -1,7 +1,7 @@
 /* Author: James Ridey 44805632
  *         james.ridey@students.mq.edu.au  
  * Creation Date: 13-10-2016
- * Last Modified: Fri 28 Oct 2016 11:20:14 PM AEDT
+ * Last Modified: Mon 31 Oct 2016 09:51:13 PM AEDT
  */
 
 #include <stdio.h>
@@ -9,7 +9,6 @@
 #include <stdlib.h>
 
 #include "parser.h"
-#include "file.h"
 
 volatile bool terminate = false;
 
@@ -72,9 +71,7 @@ int main(int argc, char **argv)
 		finish(0);
 	}
 
-	//if (read_dmake_file()) finish(output);
 	output = order();
-	//if (write_dmake_file()) finish(output);
 
 	//Determining the order of execution failed
 	if (output > 0) finish(output);
@@ -84,7 +81,7 @@ int main(int argc, char **argv)
 		finish(0);
 	}
 
-	output = execute();
+	output = execute(debug == 4);
 	finish(output);
 
     return 0;

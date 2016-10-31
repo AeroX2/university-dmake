@@ -35,6 +35,7 @@
 #define EQUALS_MODIFIER    1 << 3
 #define STAR_MODIFIER      1 << 4
 #define AMPERSAND_MODIFIER 1 << 5
+#define SECONDS_MODIFIER   1 << 6
 
 volatile extern bool terminate;
 
@@ -61,7 +62,9 @@ typedef struct File
 
 int parse(FILE* file);
 int order();
-int execute();
+int execute(bool debug);
+int execute_modifiers(char* command, char** times, int* offset);
+int execute_command(char* command, int modifiers, char** times, int offset);
 
 void debug_stage1();
 void debug_stage2();

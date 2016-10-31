@@ -22,6 +22,7 @@ bool init_hashtable(Hashtable* hashtable, size_t allocated_size, size_t element_
 size_t hash(char* string);
 bool push_hashtable(Hashtable* hashtable, Entry* entry);
 void* get_hashtable(Hashtable* hashtable, char* key);
+bool exists_hashtable(Hashtable* hashtable, char* key);
 void free_hashtable(Hashtable* hashtable);
 
 #endif

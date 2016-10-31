@@ -1,7 +1,7 @@
 /* Author: James Ridey 44805632
  *         james.ridey@students.mq.edu.au  
  * Creation Date: 13-10-2016
- * Last Modified: Mon 31 Oct 2016 20:26:53 AEDT
+ * Last Modified: Tue 01 Nov 2016 12:33:11 AM AEDT
  */
 
 #include "parser.h"
@@ -9,7 +9,7 @@
 Array rules = {};
 Array rules_to_fire = {};
 Array created_files = {};
-Hashtable file_times = {};
+Hashtable target_dont_fire = {};
 
 int parse(FILE* file)
 {
@@ -152,13 +152,13 @@ int order()
 		Rule rule = *(Rule*)rules.data[i];	
 
 		char* empty_file = malloc(strlen(rule.target)+3);
-		strcat(empty_file, ".@");	
+		strcpy(empty_file, ".@");	
 		strcat(empty_file, rule.target);	
 
 		struct stat target_stat;
 		struct stat timestamp_stat;
 		bool target_exists = stat(rule.target, &target_stat) >= 0;
-		bool timestamp_exists = stat(empty_file, &target_stat) >= 0;
+		bool timestamp_exists = stat(empty_file, &timestamp_stat) >= 0;
 		free(empty_file);
 
 		time_t target_time;
@@ -169,7 +169,6 @@ int order()
 		for (ii = 0; ii < rule.dependencies.size; ii++)
 		{
 			char* dependency = rule.dependencies.data[ii];
-			//printf("Depend %s\n",dependency);
 			struct stat dependency_stat;
 
 			bool found = false;
@@ -200,179 +199,213 @@ int order()
 	return SUCCESS;
 }
 
-int execute()
+int execute(bool debug)
 {
+	init_hashtable(&target_dont_fire,1024,sizeof(char*));
+
 	size_t i;
 	size_t ii;
-	int iii;
 	for (i = 0; i < rules_to_fire.size; i++)
 	{
 		Rule rule = *(Rule*)rules.data[(size_t)rules_to_fire.data[i]];
 
-		//Make backup copy of file
-		char* new_name = malloc(strlen(rule.target)+3);
-		strcat(new_name, ".~");
-		strcat(new_name, rule.target);	
-		rename(rule.target, new_name);
-
-		for (ii = 0; ii < rule.commands.size; ii++)
+		//Check if one of the dependencies is different
+		/*bool next = false;
+		size_t j;
+		for (j = 0; j < rule.dependencies.size; j++)
 		{
-			Command command = *(Command*)rule.commands.data[ii];
-			char modifiers = 0;
+			next = true;
+			char* dependency = rule.dependencies.data[j];
+			if (!exists_hashtable(&target_dont_fire, dependency)) next = false;
+		}*/
 
-			char* times[3] = {NULL};
-			size_t index = 2;
+		bool next = false;
 
-			bool open_bracket = false;
-			bool seconds = true;
+		if (!next) 
+		{
+			//Make backup copy of file
+			char* new_name = malloc(strlen(rule.target)+3);
+			strcpy(new_name, ".~");
+			strcat(new_name, rule.target);	
+			rename(rule.target, new_name);
 
-			for (iii = 0; command.command[iii] != '\0'; iii++)
+			for (ii = 0; ii < rule.commands.size; ii++)
 			{
-				bool stop = false;
-				char c = command.command[iii];
-				switch (c)
-				{
-					case '@':
-						modifiers |= AT_MODIFIER;
-						break;
-					case '-':
-						modifiers |= DASH_MODIFIER;
-						break;
-					case '=':
-						modifiers |= EQUALS_MODIFIER;
-						break;
-					case '*':
-						modifiers |= STAR_MODIFIER;
-						break;
-					case '&':
-						modifiers |= AMPERSAND_MODIFIER;
-						break;
-					case '[':
-						open_bracket = true;
-						break;
-					case ':':
-						if (!open_bracket) return MODIFIER;
-						index--;
-						seconds = false;
-						break;
-					case '.':
-						if (!open_bracket) return MODIFIER;
-						index--;
-						break;
-					case ']':
-						open_bracket = false;
-						break;
-					case ' ':
-						break;
-					default:
-						if (!isdigit(c)) 
-						{
-							stop = true;
-							break;
-						}
+				Command command = *(Command*)rule.commands.data[ii];
 
-						size_t length = times[index] == NULL ? 0 : strlen(times[index]);
-						if (length == 0) times[index] = calloc(2,sizeof(char));
-						else times[index] = realloc(times[index], length+2);
-
-						times[index] = strncat(times[index], &c, 1);
-						times[index][length+1] = '\0';
-				}
-				if (stop) break;
-			}
-
-			struct timeval timeout = {0,0};
-			int i;
-			int j = 1;
-			for (i = 0; i < 3; i++)
-			{
-				if (times[i] == NULL) continue;
-
-				int time = atoi(times[i]);
-				if (time == 0) return NUMBER_FORMAT;
-
-				if (seconds && i == 1) timeout.tv_usec = time * 10000;
-				else
-				{
-					timeout.tv_sec += time * j;
-					j *= 60;
-				}
-			}
-
-			for (i = 0; i < 3; i++) free(times[i]);
-
-			pid_t pid = fork();
-			if (pid == -1) return FAILURE_FORK;
-			else if (pid <= 0)
-			{
-				//Child
-				//signal(SIGINT, child_signal_handler);
-
-				int fd = open("/dev/null", O_WRONLY);
-				if (modifiers & STAR_MODIFIER) dup2(fd, 1);
-				if (modifiers & AMPERSAND_MODIFIER) dup2(fd, 2);
-				close(fd);
-				
-				size_t x = count_digits((long)timeout.tv_sec);
-				size_t y = count_digits(timeout.tv_usec/10000);
-				char* time = malloc(1+x+y);
-				sprintf(time, "%llu.%lu", (long long)timeout.tv_sec, timeout.tv_usec);
-
-				struct itimerval timerval = {};
-				timerval.it_interval.tv_sec = 0;
-				timerval.it_interval.tv_usec = 0;
-				timerval.it_value = timeout;
-				setitimer(ITIMER_REAL,&timerval,NULL);
-				execlp("/bin/sh","/bin/sh","-c",command.command + iii,NULL);
-
-				free(time);
-				_exit(0);
-			}
-			else
-			{
-				//Parent
-				if (!(modifiers & AT_MODIFIER)) 
-				{
-					printf("%s\n", command.command + iii);
-					fflush(NULL);
-				}
-
-				int status;
-				waitpid(pid, &status, 0);
-				if (status != 0 && WTERMSIG(status) != SIGALRM)
-				{
-					if (!(modifiers & EQUALS_MODIFIER)) 
-					{
-						if (modifiers & DASH_MODIFIER) fprintf(stderr, "--- Exited with error 1 (ignored) ---\n");
-						else fprintf(stderr, "*** Exited with error 1 ***\n");
-					}
-					if (!(modifiers & DASH_MODIFIER) && !(modifiers & EQUALS_MODIFIER)) return status;	
-				}
-
-				if (terminate) return INTERRUPT;
+				char* times[3] = {NULL};
+				int modifiers = 0;
+				int offset = 0;
+				modifiers = execute_modifiers(command.command, times, &offset);
+				execute_command(command.command, modifiers, times, offset);
 			}
 		}
 
-		char* empty_file = malloc(strlen(rule.target)+3);
-		strcat(empty_file, ".@");
-		strcat(empty_file, rule.target);	
+		/*char* empty_file = malloc(strlen(rule.target)+3);
+		strcpy(empty_file, ".@");
+		strcat(empty_file, rule.target);
 		if (!filecmp(rule.target, new_name))
 		{
-			printf("Dmake: File %s unchanged.\n", rule.target);
+			if (debug) printf("Dmake: File %s unchanged.\n", rule.target);
+
+			Entry* entry = malloc(sizeof(Entry));
+			entry->key = strdup(rule.target);
+			entry->data = rule.target;
+			push_hashtable(&target_dont_fire, entry);
 			rename(new_name, rule.target);
-			int handle = open(empty_file, O_RDWR | O_CREAT, S_IRUSR | S_IRGRP | S_IROTH);
+			int handle = creat(empty_file, S_IRUSR | S_IRGRP | S_IROTH);
 			close(handle);
 		}
 		else 
 		{
-			printf("Dmake: File %s changed.\n", rule.target);
 			unlink(new_name);
 			if(access(empty_file, F_OK) != -1) unlink(empty_file);
 		}
 		free(empty_file);
-		free(new_name);
+		free(new_name);*/
 	}
 
+	return SUCCESS;
+}
+
+int execute_modifiers(char* command, char** times, int* offset)
+{
+	int modifiers = 0;
+	size_t index = 2;
+
+	bool open_bracket = false;
+
+	size_t i;
+	for (i = 0; command[i] != '\0'; i++)
+	{
+		bool stop = false;
+		char c = command[i];
+		switch (c)
+		{
+			case '@':
+				modifiers |= AT_MODIFIER;
+				break;
+			case '-':
+				modifiers |= DASH_MODIFIER;
+				break;
+			case '=':
+				modifiers |= EQUALS_MODIFIER;
+				break;
+			case '*':
+				modifiers |= STAR_MODIFIER;
+				break;
+			case '&':
+				modifiers |= AMPERSAND_MODIFIER;
+				break;
+			case '[':
+				open_bracket = true;
+				break;
+			case ':':
+				if (!open_bracket) return MODIFIER;
+				index--;
+				modifiers |= SECONDS_MODIFIER;
+				break;
+			case '.':
+				if (!open_bracket) return MODIFIER;
+				index--;
+				break;
+			case ']':
+				open_bracket = false;
+				break;
+			case ' ':
+				break;
+			default:
+				if (!isdigit(c)) 
+				{
+					stop = true;
+					break;
+				}
+
+				size_t length = times[index] == NULL ? 0 : strlen(times[index]);
+				if (length == 0) times[index] = calloc(2,sizeof(char));
+				else times[index] = realloc(times[index], length+2);
+
+				times[index] = strncat(times[index], &c, 1);
+				times[index][length+1] = '\0';
+		}
+		if (stop) break;
+	}
+	*offset = i;
+	return modifiers;
+}
+
+int execute_command(char* command, int modifiers, char** times, int offset)
+{
+	struct timeval timeout = {0,0};
+	int i;
+	int j = 1;
+	for (i = 0; i < 3; i++)
+	{
+		if (times[i] == NULL) continue;
+
+		int time = atoi(times[i]);
+		if (time == 0) return NUMBER_FORMAT;
+
+		if ((modifiers & SECONDS_MODIFIER) && i == 1) timeout.tv_usec = time * 10000;
+		else
+		{
+			timeout.tv_sec += time * j;
+			j *= 60;
+		}
+	}
+
+	for (i = 0; i < 3; i++) free(times[i]);
+
+	pid_t pid = fork();
+	if (pid == -1) return FAILURE_FORK;
+	else if (pid <= 0)
+	{
+		//Child
+		//signal(SIGINT, child_signal_handler);
+
+		int fd = open("/dev/null", O_WRONLY);
+		if (modifiers & STAR_MODIFIER) dup2(fd, 1);
+		if (modifiers & AMPERSAND_MODIFIER) dup2(fd, 2);
+		close(fd);
+		
+		size_t x = count_digits((long)timeout.tv_sec);
+		size_t y = count_digits(timeout.tv_usec/10000);
+		char* time = malloc(1+x+y);
+		sprintf(time, "%llu.%lu", (long long)timeout.tv_sec, timeout.tv_usec);
+
+		struct itimerval timerval = {};
+		timerval.it_interval.tv_sec = 0;
+		timerval.it_interval.tv_usec = 0;
+		timerval.it_value = timeout;
+		setitimer(ITIMER_REAL,&timerval,NULL);
+		execlp("/bin/sh","/bin/sh","-c",command + offset,NULL);
+
+		free(time);
+		_exit(0);
+	}
+	else
+	{
+		//Parent
+		if (!(modifiers & AT_MODIFIER)) 
+		{
+			printf("%s\n", command + offset);
+			fflush(NULL);
+		}
+
+		int status;
+		waitpid(pid, &status, 0);
+		if (status != 0 && WTERMSIG(status) != SIGALRM)
+		{
+			if (!(modifiers & EQUALS_MODIFIER)) 
+			{
+				if (modifiers & DASH_MODIFIER) fprintf(stderr, "--- Exited with error 1 (ignored) ---\n");
+				else fprintf(stderr, "*** Exited with error 1 ***\n");
+			}
+			if (!(modifiers & DASH_MODIFIER) && !(modifiers & EQUALS_MODIFIER)) return status;	
+		}
+
+		if (terminate) return INTERRUPT;
+	}
 	return SUCCESS;
 }
 

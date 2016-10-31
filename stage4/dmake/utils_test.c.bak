@@ -12,5 +12,8 @@ int main()
 	//10 long
 	long long snakes = 0;
 	printf("Test %lu\n", count_digits(snakes));
+
+	printf("%d\n", filecmp("same.txt","same.txt"));
+	printf("%d\n", filecmp("same.txt","different.txt"));
 	return 0;
 }

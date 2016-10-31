@@ -1,6 +1,6 @@
 #!/bin/sh
 
-gcc -g -Wall -fsanitize=undefined dmake/*.c dmake/*.h -o dmake/dmake
+gcc -g -Wall dmake/*.c dmake/*.h -o dmake/dmake
 export PATH="$PATH:`pwd`/dmake"
 
 for i in {1..10}

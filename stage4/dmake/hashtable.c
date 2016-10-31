@@ -1,7 +1,7 @@
 /* Author: James Ridey 44805632
  *         james.ridey@students.mq.edu.au  
  * Creation Date: 10-08-2016
- * Last Modified: Tue 25 Oct 2016 19:05:03 AEDT
+ * Last Modified: Mon 31 Oct 2016 09:34:25 PM AEDT
  */
 #include "hashtable.h"
 
@@ -70,6 +70,15 @@ void* get_hashtable(Hashtable* hashtable, char* key)
 
 	return NULL;
 }
+
+bool exists_hashtable(Hashtable* hashtable, char* key)
+{
+	size_t hashed_key = hash(key) % hashtable->allocated_size;
+	
+	Array* array = (Array*)hashtable->buckets.data[hashed_key];
+	return array->size > 0;
+}
+
 
 void free_hashtable(Hashtable* hashtable)
 {
