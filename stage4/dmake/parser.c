@@ -1,7 +1,7 @@
 /* Author: James Ridey 44805632
  *         james.ridey@students.mq.edu.au  
  * Creation Date: 13-10-2016
- * Last Modified: Tue 01 Nov 2016 01:57:03 AM AEDT
+ * Last Modified: Tue 01 Nov 2016 11:24:37 PM AEDT
  */
 
 #include "parser.h"
@@ -134,19 +134,11 @@ int order()
 	{
 		Rule rule = *(Rule*)rules.data[i];	
 
-		char* empty_file = malloc(strlen(rule.target)+3);
-		strcpy(empty_file, ".@");	
-		strcat(empty_file, rule.target);	
-
 		struct stat target_stat;
-		struct stat timestamp_stat;
-		bool target_exists = stat(rule.target, &target_stat) == 0;
-		bool timestamp_exists = stat(empty_file, &timestamp_stat) == 0;
-		free(empty_file);
+		target_stat.st_mtime = 0;
 
-		time_t target_time;
-		if (timestamp_exists) target_time = timestamp_stat.st_mtime;
-		else target_time = target_stat.st_mtime;
+		bool target_exists = stat(rule.target, &target_stat) == 0;
+		time_t target_time = target_stat.st_mtime;
 
 		bool fire = rule.dependencies.size == 0;
 		for (ii = 0; ii < rule.dependencies.size; ii++)
@@ -163,7 +155,7 @@ int order()
 			else if (stat(dependency, &dependency_stat) == 0)
 			{
 				if (!target_exists) fire = true;
-				else if (dependency_stat.st_mtime > target_time) fire = true;
+				else if (dependency_stat.st_mtime >= target_time) fire = true;
 			}
 			else
 			{
@@ -171,7 +163,7 @@ int order()
 				return NO_RULE_TO_FIRE;
 			}
 		}
-			
+
 		if (fire)
 		{
 			push_array(&rules_to_fire, (void*)i);
@@ -187,27 +179,55 @@ int execute(bool debug)
 
 	size_t i;
 	size_t ii;
-	for (i = 0; i < rules_to_fire.size; i++)
+	for (i = rules.size; i-- > 0;)
 	{
-		Rule rule = *(Rule*)rules.data[(size_t)rules_to_fire.data[i]];
+		Rule rule = *(Rule*)rules.data[i];
+		//printf("Target start %s\n", rule.target);
+
+		char* backup_file = malloc(strlen(rule.target)+3);
+		strcpy(backup_file, ".~");
+		strcat(backup_file, rule.target);	
+
+		char* timestamp_file = malloc(strlen(rule.target)+3);
+		strcpy(timestamp_file, ".@");	
+		strcat(timestamp_file, rule.target);	
+
+		struct stat timestamp_stat;
+		struct stat target_stat;
+		timestamp_stat.st_mtime = 0;
+		target_stat.st_mtime = 0;
+
+		stat(timestamp_file, &timestamp_stat);
+		bool target_exists = stat(rule.target, &target_stat) == 0;
+		time_t ttime = target_exists ? max(target_stat.st_mtime, timestamp_stat.st_mtime) : time(NULL);
+
+		if (timestamp_stat.st_mtime < target_stat.st_mtime) unlink(timestamp_file);
+
+		bool in_to_fire = in_array(&rules_to_fire, (void*)i);
 
 		//Check if one of the dependencies is different
-		bool next = true;
+		bool next = in_to_fire;
 		size_t j;
 		for (j = 0; j < rule.dependencies.size; j++)
 		{
+			struct stat d;
 			char* dependency = rule.dependencies.data[j];
-			if (!exists_hashtable(&target_dont_fire, dependency)) next = false;
+			time_t dtime = stat(dependency, &d) == 0 ? d.st_mtime : time(NULL);
+			if (dtime >= ttime) 
+			{
+				next = false;
+				break;
+			}
 		}
 
-		char* new_name = malloc(strlen(rule.target)+3);
-		strcpy(new_name, ".~");
-		strcat(new_name, rule.target);	
+		if (!target_exists) next = false;
+		if (rule.dependencies.size == 0) next = false;
 
-		if (!next || rule.dependencies.size == 0) 
+		if (!next) 
 		{
+
 			//Make backup copy of file
-			rename(rule.target, new_name);
+			rename(rule.target, backup_file);
 
 			for (ii = 0; ii < rule.commands.size; ii++)
 			{
@@ -222,10 +242,8 @@ int execute(bool debug)
 			}
 		}
 
-		char* empty_file = malloc(strlen(rule.target)+3);
-		strcpy(empty_file, ".@");
-		strcat(empty_file, rule.target);
-		if (!filecmp(rule.target, new_name))
+		//If the file is the same
+		if (access(backup_file, F_OK) != -1 && !filecmp(rule.target, backup_file))
 		{
 			if (debug) printf("Dmake: File %s unchanged.\n", rule.target);
 
@@ -233,17 +251,19 @@ int execute(bool debug)
 			entry->key = strdup(rule.target);
 			entry->data = rule.target;
 			push_hashtable(&target_dont_fire, entry);
-			rename(new_name, rule.target);
-			int handle = creat(empty_file, S_IRUSR | S_IRGRP | S_IROTH);
+
+			rename(backup_file, rule.target);
+			int handle = creat(timestamp_file, S_IRUSR | S_IRGRP | S_IROTH);
 			close(handle);
 		}
 		else 
 		{
-			unlink(new_name);
-			if(access(empty_file, F_OK) != -1) unlink(empty_file);
+			unlink(backup_file);
+			if (!next) unlink(timestamp_file);
 		}
-		free(empty_file);
-		free(new_name);
+
+		free(backup_file);
+		free(timestamp_file);
 	}
 
 	return SUCCESS;

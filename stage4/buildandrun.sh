@@ -3,7 +3,7 @@
 gcc -g -Wall dmake/*.c dmake/*.h -o dmake/dmake
 export PATH="$PATH:`pwd`/dmake"
 
-rm -r test*
+yes | rm -r test*
 tar xf stage4.tar
 cp stage4/test* -rp .
 
@@ -15,4 +15,5 @@ do
 	cd ../
 	diff "test$i.out" output
 	diff "test$i.err" output.err
+	ls -A1ts test$i | diff test$i.ls -
 done

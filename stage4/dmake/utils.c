@@ -1,7 +1,7 @@
 /* Author: James Ridey 44805632
  *         james.ridey@students.mq.edu.au  
  * Creation Date: 13-10-2016
- * Last Modified: Mon 31 Oct 2016 20:02:55 AEDT
+ * Last Modified: Tue 01 Nov 2016 12:33:51 PM AEDT
  */
 
 #include "utils.h"
@@ -177,4 +177,16 @@ size_t count_digits(long long number)
 		length++;
 	} 
 	return length;
+}
+
+int min(int a, int b)
+{
+	if (a < b) return a;
+	return b;
+}
+
+int max(int a, int b)
+{
+	if (a > b) return a;
+	return b;
 }

@@ -1,7 +1,7 @@
 /* Author: James Ridey 44805632
  *         james.ridey@students.mq.edu.au  
  * Creation Date: 10-08-2016
- * Last Modified: Tue 25 Oct 2016 20:50:09 AEDT
+ * Last Modified: Tue 01 Nov 2016 06:57:43 PM AEDT
  */
 #include "array.h"
 
@@ -33,6 +33,16 @@ bool check_array(Array* array)
 			free(tmp);
 			return true;
 		}
+	}
+	return false;
+}
+
+bool in_array(Array* array, void* data)
+{
+	size_t i;
+	for (i = 0; i < array->size; i++)
+	{
+		if (array->data[i] == data) return true;
 	}
 	return false;
 }
