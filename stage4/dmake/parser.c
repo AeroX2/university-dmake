@@ -1,7 +1,7 @@
 /* Author: James Ridey 44805632
  *         james.ridey@students.mq.edu.au  
  * Creation Date: 13-10-2016
- * Last Modified: Wed 02 Nov 2016 13:52:57 AEDT
+ * Last Modified: Thu 03 Nov 2016 01:49:11 AM AEDT
  */
 
 #include "parser.h"
@@ -9,7 +9,7 @@
 Array rules = {};
 Array rules_to_fire = {};
 Array created_files = {};
-Hashtable target_dont_fire = {};
+//Hashtable target_dont_fire = {};
 
 int parse(FILE* file)
 {
@@ -206,7 +206,7 @@ int order()
 
 int execute(bool debug)
 {
-	init_hashtable(&target_dont_fire,1024,sizeof(char*));
+	//init_hashtable(&target_dont_fire,1024,sizeof(char*));
 
 	size_t i;
 	size_t j;
@@ -214,9 +214,11 @@ int execute(bool debug)
 	for (i = rules.size; i-- > 0;)
 	{
 		Rule rule = *(Rule*)rules.data[i];
-		//printf("Target start %s\n", rule.target);
+		//printf("Target start %s\n", strjoin((char**) rule.targets.data, rule.targets.size, ", "));
 
 		bool target_exists = false;
+
+		bool ttime_set = false;
 		time_t ttime = 0;
 
 		char* backup_file[rule.targets.size];
@@ -243,34 +245,59 @@ int execute(bool debug)
 			if (stat(target, &target_stat) == 0)
 			{
 				target_exists = true;
-				ttime = max(ttime, max(target_stat.st_mtime, timestamp_stat.st_mtime));
+				if (!ttime_set)
+				{
+					ttime = max(target_stat.st_mtime, timestamp_stat.st_mtime);
+					ttime_set = true;
+				}
+				ttime = min(ttime, max(target_stat.st_mtime, timestamp_stat.st_mtime));
 			}
+			else ttime = 1;
 
 			if (timestamp_stat.st_mtime < target_stat.st_mtime) unlink(timestamp_file[j]);
+
+			//printf("%d %s\n", i, target);
 		}
 
-		if (ttime == 0) ttime = time(NULL);
+		if (ttime == 0)
+		{
+			//printf("Snakes\n");
+			ttime = time(NULL);
+		}
 
 		bool in_to_fire = in_array(&rules_to_fire, (void*)i);
 
+
+		//if (in_to_fire) printf("Test 1\n");
+
 		//Check if one of the dependencies is different
-		bool next = in_to_fire;
+		bool fire = false;
 		for (j = 0; j < rule.dependencies.size; j++)
 		{
 			struct stat d;
 			char* dependency = rule.dependencies.data[j];
+			//printf("%s\n", dependency);
+
 			time_t dtime = stat(dependency, &d) == 0 ? d.st_mtime : time(NULL);
+
 			if (dtime >= ttime) 
 			{
-				next = false;
+				//printf("%lu\n", dtime);
+				//printf("%lu\n", ttime);
+				fire = true;
 				break;
 			}
 		}
 
-		if (!target_exists) next = false;
-		if (rule.dependencies.size == 0) next = false;
+		//if (fire) printf("Test 2\n");
 
-		if (!next) 
+		if (!target_exists) fire = true;
+		//if (fire) printf("Test 3\n");
+
+		if (in_to_fire && rule.dependencies.size == 0) fire = true;
+		//if (fire) printf("Test 4\n");
+
+		if (fire) 
 		{
 
 			//Make backup copy of file
@@ -300,10 +327,10 @@ int execute(bool debug)
 			if (access(backup_file[j], F_OK) != -1 && !filecmp(target, backup_file[j]))
 			{
 				if (debug) printf("Dmake: File %s unchanged.\n", target);
-				Entry* entry = malloc(sizeof(Entry));
+				/*Entry* entry = malloc(sizeof(Entry));
 				entry->key = strdup(target);
 				entry->data = NULL;
-				push_hashtable(&target_dont_fire, entry);
+				push_hashtable(&target_dont_fire, entry);*/
 
 				rename(backup_file[j], target);
 				int handle = creat(timestamp_file[j], S_IRUSR | S_IRGRP | S_IROTH);
@@ -312,7 +339,7 @@ int execute(bool debug)
 			else 
 			{
 				unlink(backup_file[j]);
-				if (!next) unlink(timestamp_file[j]);
+				if (fire) unlink(timestamp_file[j]);
 			}
 
 			free(backup_file[j]);
