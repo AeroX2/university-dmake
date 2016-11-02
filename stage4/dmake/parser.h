@@ -46,8 +46,7 @@ typedef struct Command
 
 typedef struct Rule
 {
-	char* target;
-
+	Array targets;
 	Array dependencies;
 	Array commands;
 

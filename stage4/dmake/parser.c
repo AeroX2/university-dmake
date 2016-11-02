@@ -1,7 +1,7 @@
 /* Author: James Ridey 44805632
  *         james.ridey@students.mq.edu.au  
  * Creation Date: 13-10-2016
- * Last Modified: Tue 01 Nov 2016 11:24:37 PM AEDT
+ * Last Modified: Wed 02 Nov 2016 13:04:48 AEDT
  */
 
 #include "parser.h"
@@ -95,10 +95,20 @@ int parse(FILE* file)
 
 			Rule* rule = malloc(sizeof(Rule));
 
+			init_array(&rule->targets, sizeof(char*));
 			init_array(&rule->dependencies, sizeof(char*));
 			init_array(&rule->commands, sizeof(Command));
 
-			if (strlen(token) != length) rule->target = strdup(strstrip(token, "\t\n "));
+			if (strlen(token) != length) 
+			{
+				char* save2 = NULL;
+				char* token2 = strtok_r(token, " ", &save2);
+				while (token2 != NULL)
+				{
+					push_array(&rule->targets, strdup(strstrip(token2, "\t\n ")));	
+					token2 = strtok_r(NULL, "\n\t ", &save2);
+				}
+			}
 			else
 			{
 				fprintf(stderr, "Syntax error at line %lu: Expected colon separator in rule header:\n", line_num);
@@ -128,6 +138,7 @@ int order()
 	init_array(&created_files, sizeof(char*));
 
 	size_t i;
+	size_t j;
 	size_t ii;
 	size_t iii;
 	for (i = rules.size; i-- > 0;)
@@ -137,8 +148,23 @@ int order()
 		struct stat target_stat;
 		target_stat.st_mtime = 0;
 
-		bool target_exists = stat(rule.target, &target_stat) == 0;
-		time_t target_time = target_stat.st_mtime;
+		time_t target_time = 0;
+		bool target_time_set = false;
+		bool target_exists = false;
+		for (j = 0; j < rule.targets.size; j++) 
+		{
+			char* target = rule.targets.data[j];
+			if (stat(target, &target_stat) == 0)
+			{
+				if (!target_time_set) 
+				{
+					target_time = target_stat.st_mtime;
+					target_time_set = true;
+				}
+				target_time = min(target_time, target_stat.st_mtime);
+				target_exists = true;
+			}
+		}
 
 		bool fire = rule.dependencies.size == 0;
 		for (ii = 0; ii < rule.dependencies.size; ii++)
@@ -167,7 +193,12 @@ int order()
 		if (fire)
 		{
 			push_array(&rules_to_fire, (void*)i);
-			push_array(&created_files, rule.target);
+
+			for (j = 0; j < rule.targets.size; j++) 
+			{
+				char* target = rule.targets.data[j];
+				push_array(&created_files, target);
+			}
 		}
 	}
 	return SUCCESS;
@@ -178,30 +209,47 @@ int execute(bool debug)
 	init_hashtable(&target_dont_fire,1024,sizeof(char*));
 
 	size_t i;
+	size_t j;
 	size_t ii;
 	for (i = rules.size; i-- > 0;)
 	{
 		Rule rule = *(Rule*)rules.data[i];
 		//printf("Target start %s\n", rule.target);
 
-		char* backup_file = malloc(strlen(rule.target)+3);
-		strcpy(backup_file, ".~");
-		strcat(backup_file, rule.target);	
+		bool target_exists = false;
+		time_t ttime = 0;
 
-		char* timestamp_file = malloc(strlen(rule.target)+3);
-		strcpy(timestamp_file, ".@");	
-		strcat(timestamp_file, rule.target);	
+		char* backup_file[rule.targets.size];
+		char* timestamp_file[rule.targets.size];
+		for (j = 0; j < rule.targets.size; j++) 
+		{
+			char* target = rule.targets.data[i];
+			size_t target_length = strlen(target)+3;
 
-		struct stat timestamp_stat;
-		struct stat target_stat;
-		timestamp_stat.st_mtime = 0;
-		target_stat.st_mtime = 0;
+			backup_file[j] = malloc(target_length);
+			strcpy(backup_file[j], ".~");
+			strcat(backup_file[j], target);	
 
-		stat(timestamp_file, &timestamp_stat);
-		bool target_exists = stat(rule.target, &target_stat) == 0;
-		time_t ttime = target_exists ? max(target_stat.st_mtime, timestamp_stat.st_mtime) : time(NULL);
+			timestamp_file[j] = malloc(target_length);
+			strcpy(timestamp_file[j], ".@");	
+			strcat(timestamp_file[j], target);	
 
-		if (timestamp_stat.st_mtime < target_stat.st_mtime) unlink(timestamp_file);
+			struct stat timestamp_stat;
+			struct stat target_stat;
+			timestamp_stat.st_mtime = 0;
+			target_stat.st_mtime = 0;
+
+			stat(timestamp_file[j], &timestamp_stat);
+			if (stat(target, &target_stat) == 0)
+			{
+				target_exists = true;
+				ttime = max(ttime, max(target_stat.st_mtime, timestamp_stat.st_mtime));
+			}
+
+			if (timestamp_stat.st_mtime < target_stat.st_mtime) unlink(timestamp_file[j]);
+		}
+
+		if (ttime == 0) ttime = time(NULL);
 
 		bool in_to_fire = in_array(&rules_to_fire, (void*)i);
 
@@ -227,7 +275,11 @@ int execute(bool debug)
 		{
 
 			//Make backup copy of file
-			rename(rule.target, backup_file);
+			for (j = 0; j < rule.targets.size; j++) 
+			{
+				char* target = rule.targets.data[i];
+				rename(target, backup_file[j]);
+			}
 
 			for (ii = 0; ii < rule.commands.size; ii++)
 			{
@@ -242,24 +294,27 @@ int execute(bool debug)
 			}
 		}
 
-		//If the file is the same
-		if (access(backup_file, F_OK) != -1 && !filecmp(rule.target, backup_file))
+		for (j = 0; j < rule.targets.size; j++) 
 		{
-			if (debug) printf("Dmake: File %s unchanged.\n", rule.target);
+			char* target = rule.targets.data[i];
+			//If the file is the same
+			if (access(backup_file[j], F_OK) != -1 && !filecmp(target, backup_file[j]))
+			{
+				if (debug) printf("Dmake: File %s unchanged.\n", target);
+				Entry* entry = malloc(sizeof(Entry));
+				entry->key = strdup(target);
+				entry->data = NULL;
+				push_hashtable(&target_dont_fire, entry);
 
-			Entry* entry = malloc(sizeof(Entry));
-			entry->key = strdup(rule.target);
-			entry->data = rule.target;
-			push_hashtable(&target_dont_fire, entry);
-
-			rename(backup_file, rule.target);
-			int handle = creat(timestamp_file, S_IRUSR | S_IRGRP | S_IROTH);
-			close(handle);
-		}
-		else 
-		{
-			unlink(backup_file);
-			if (!next) unlink(timestamp_file);
+				rename(backup_file[j], target);
+				int handle = creat(timestamp_file[j], S_IRUSR | S_IRGRP | S_IROTH);
+				close(handle);
+			}
+			else 
+			{
+				unlink(backup_file[j]);
+				if (!next) unlink(timestamp_file[j]);
+			}
 		}
 
 		free(backup_file);
@@ -414,7 +469,14 @@ void debug_stage1()
 	{
 		Rule rule = *(Rule*)rules.data[i];
 		printf("Rule %lu:\n", i+1);
-		printf("    Targets:      %s\n", rule.target);
+		printf("    Targets:      ");
+		if (rule.targets.size > 0)
+		{
+			char* files = strjoin((char**)rule.targets.data, rule.targets.size, ", ");
+			printf("%s", files);
+			free(files);
+		}
+		printf("\n");
 
 		printf("    Dependencies: ");
 		if (rule.dependencies.size > 0)
@@ -451,7 +513,7 @@ void free_rules()
 	for (i = 0; i < rules.size; i++)
 	{
 		Rule* rule = (Rule*)rules.data[i];
-		free(rule->target);
+		free_array(&rule->targets);
 		free_array(&rule->dependencies);
 		for (ii = 0; ii < rule->commands.size; ii++) 
 		{
