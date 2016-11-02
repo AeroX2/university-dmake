@@ -1,7 +1,7 @@
 /* Author: James Ridey 44805632
  *         james.ridey@students.mq.edu.au  
  * Creation Date: 13-10-2016
- * Last Modified: Wed 02 Nov 2016 13:04:48 AEDT
+ * Last Modified: Wed 02 Nov 2016 13:52:57 AEDT
  */
 
 #include "parser.h"
@@ -223,7 +223,7 @@ int execute(bool debug)
 		char* timestamp_file[rule.targets.size];
 		for (j = 0; j < rule.targets.size; j++) 
 		{
-			char* target = rule.targets.data[i];
+			char* target = rule.targets.data[j];
 			size_t target_length = strlen(target)+3;
 
 			backup_file[j] = malloc(target_length);
@@ -255,7 +255,6 @@ int execute(bool debug)
 
 		//Check if one of the dependencies is different
 		bool next = in_to_fire;
-		size_t j;
 		for (j = 0; j < rule.dependencies.size; j++)
 		{
 			struct stat d;
@@ -277,7 +276,7 @@ int execute(bool debug)
 			//Make backup copy of file
 			for (j = 0; j < rule.targets.size; j++) 
 			{
-				char* target = rule.targets.data[i];
+				char* target = rule.targets.data[j];
 				rename(target, backup_file[j]);
 			}
 
@@ -296,7 +295,7 @@ int execute(bool debug)
 
 		for (j = 0; j < rule.targets.size; j++) 
 		{
-			char* target = rule.targets.data[i];
+			char* target = rule.targets.data[j];
 			//If the file is the same
 			if (access(backup_file[j], F_OK) != -1 && !filecmp(target, backup_file[j]))
 			{
@@ -315,10 +314,10 @@ int execute(bool debug)
 				unlink(backup_file[j]);
 				if (!next) unlink(timestamp_file[j]);
 			}
-		}
 
-		free(backup_file);
-		free(timestamp_file);
+			free(backup_file[j]);
+			free(timestamp_file[j]);
+		}
 	}
 
 	return SUCCESS;
