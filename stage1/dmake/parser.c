@@ -1,7 +1,7 @@
 /* Author: James Ridey 44805632
  *         james.ridey@students.mq.edu.au  
  * Creation Date: 13-10-2016
- * Last Modified: Mon 17 Oct 2016 22:38:59 AEDT
+ * Last Modified: Thu 03 Nov 2016 03:45:42 PM AEDT
  */
 
 #include "parser.h"
@@ -81,7 +81,7 @@ int parse(FILE* file)
 			append = true;
 			continue;
 		}*/
-		if (line[length-2] == '\\')
+		if (length >= 2 && line[length-2] == '\\')
 		{
 			append = true;
 			continue;
