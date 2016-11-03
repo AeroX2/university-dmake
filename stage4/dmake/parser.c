@@ -1,7 +1,7 @@
 /* Author: James Ridey 44805632
  *         james.ridey@students.mq.edu.au  
  * Creation Date: 13-10-2016
- * Last Modified: Thu 03 Nov 2016 01:49:11 AM AEDT
+ * Last Modified: Thu 03 Nov 2016 04:00:08 PM AEDT
  */
 
 #include "parser.h"
@@ -9,7 +9,6 @@
 Array rules = {};
 Array rules_to_fire = {};
 Array created_files = {};
-//Hashtable target_dont_fire = {};
 
 int parse(FILE* file)
 {
@@ -20,6 +19,7 @@ int parse(FILE* file)
 
 	bool append = false;
 	bool in_rule = false;
+
 
 	init_array(&rules, sizeof(Rule));
 
@@ -45,7 +45,7 @@ int parse(FILE* file)
 
 		//TODO strlen is expensive replace with length and length_raw
 		length = strlen(line);
-		if (line[length-2] == '\\')
+		if (length >= 2 && line[length-2] == '\\')
 		{
 			append = true;
 			continue;
@@ -132,6 +132,7 @@ int parse(FILE* file)
 	return SUCCESS;
 }
 
+//TODO Order is useless for stage 4, find a way to merge the code?
 int order()
 {
 	init_array(&rules_to_fire, sizeof(size_t));
@@ -206,23 +207,20 @@ int order()
 
 int execute(bool debug)
 {
-	//init_hashtable(&target_dont_fire,1024,sizeof(char*));
-
 	size_t i;
 	size_t j;
 	size_t ii;
 	for (i = rules.size; i-- > 0;)
 	{
 		Rule rule = *(Rule*)rules.data[i];
-		//printf("Target start %s\n", strjoin((char**) rule.targets.data, rule.targets.size, ", "));
 
-		bool target_exists = false;
-
+		bool target_exists = true;
 		bool ttime_set = false;
 		time_t ttime = 0;
 
 		char* backup_file[rule.targets.size];
 		char* timestamp_file[rule.targets.size];
+
 		for (j = 0; j < rule.targets.size; j++) 
 		{
 			char* target = rule.targets.data[j];
@@ -244,7 +242,6 @@ int execute(bool debug)
 			stat(timestamp_file[j], &timestamp_stat);
 			if (stat(target, &target_stat) == 0)
 			{
-				target_exists = true;
 				if (!ttime_set)
 				{
 					ttime = max(target_stat.st_mtime, timestamp_stat.st_mtime);
@@ -252,23 +249,10 @@ int execute(bool debug)
 				}
 				ttime = min(ttime, max(target_stat.st_mtime, timestamp_stat.st_mtime));
 			}
-			else ttime = 1;
-
-			if (timestamp_stat.st_mtime < target_stat.st_mtime) unlink(timestamp_file[j]);
-
-			//printf("%d %s\n", i, target);
+			else target_exists = false;
 		}
 
-		if (ttime == 0)
-		{
-			//printf("Snakes\n");
-			ttime = time(NULL);
-		}
-
-		bool in_to_fire = in_array(&rules_to_fire, (void*)i);
-
-
-		//if (in_to_fire) printf("Test 1\n");
+		if (!target_exists) ttime = time(NULL);
 
 		//Check if one of the dependencies is different
 		bool fire = false;
@@ -276,26 +260,18 @@ int execute(bool debug)
 		{
 			struct stat d;
 			char* dependency = rule.dependencies.data[j];
-			//printf("%s\n", dependency);
 
 			time_t dtime = stat(dependency, &d) == 0 ? d.st_mtime : time(NULL);
 
 			if (dtime >= ttime) 
 			{
-				//printf("%lu\n", dtime);
-				//printf("%lu\n", ttime);
 				fire = true;
 				break;
 			}
 		}
 
-		//if (fire) printf("Test 2\n");
-
 		if (!target_exists) fire = true;
-		//if (fire) printf("Test 3\n");
-
-		if (in_to_fire && rule.dependencies.size == 0) fire = true;
-		//if (fire) printf("Test 4\n");
+		if (rule.dependencies.size == 0) fire = true;
 
 		if (fire) 
 		{
@@ -327,14 +303,13 @@ int execute(bool debug)
 			if (access(backup_file[j], F_OK) != -1 && !filecmp(target, backup_file[j]))
 			{
 				if (debug) printf("Dmake: File %s unchanged.\n", target);
-				/*Entry* entry = malloc(sizeof(Entry));
-				entry->key = strdup(target);
-				entry->data = NULL;
-				push_hashtable(&target_dont_fire, entry);*/
 
 				rename(backup_file[j], target);
-				int handle = creat(timestamp_file[j], S_IRUSR | S_IRGRP | S_IROTH);
-				close(handle);
+				//int handle = creat(timestamp_file[j], S_IRUSR | S_IRGRP | S_IROTH);
+				creat(timestamp_file[j], S_IRUSR | S_IRGRP | S_IROTH);
+
+				//Valgrind warns this is an invalid close
+				//close(handle);
 			}
 			else 
 			{
@@ -447,9 +422,7 @@ int execute_command(char* command, int modifiers, char** times, int offset)
 		if (modifiers & AMPERSAND_MODIFIER) dup2(fd, 2);
 		close(fd);
 		
-		size_t x = count_digits((long)timeout.tv_sec);
-		size_t y = count_digits(timeout.tv_usec/10000);
-		char* time = malloc(1+x+y);
+		char* time = malloc(sizeof(char*));
 		sprintf(time, "%llu.%lu", (long long)timeout.tv_sec, timeout.tv_usec);
 
 		struct itimerval timerval = {};

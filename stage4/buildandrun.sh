@@ -11,7 +11,7 @@ for i in {1..10}
 do
 	echo $i
 	cd "test$i"
-	`cat ../test$i.cmd` > ../output 2> ../output.err
+	valgrind -q `cat ../test$i.cmd` > ../output 2> ../output.err
 	cd ../
 	diff "test$i.out" output
 	diff "test$i.err" output.err
