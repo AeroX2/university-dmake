@@ -1,7 +1,7 @@
 /* Author: James Ridey 44805632
  *         james.ridey@students.mq.edu.au  
  * Creation Date: 13-10-2016
- * Last Modified: Tue 01 Nov 2016 01:14:24 AEDT
+ * Last Modified: Fri 04 Nov 2016 05:04:35 PM AEDT
  */
 
 #include "parser.h"
@@ -9,7 +9,6 @@
 Array rules = {};
 Array rules_to_fire = {};
 Array created_files = {};
-Hashtable target_dont_fire = {};
 
 int parse(FILE* file)
 {
@@ -45,24 +44,7 @@ int parse(FILE* file)
 
 		//TODO strlen is expensive replace with length and length_raw
 		length = strlen(line);
-
-		//TODO This detects backslashes with spaces at the end but line 34 needs to be fixed before you can use this
-		/*bool stop = false;
-		for (i = length+1; i-- > 0;)
-		{
-			if (line[i] == '\\')
-			{
-				stop = true;
-				break;
-			}
-			else if (isalnum(line[i])) break;
-		}
-		if (stop) 
-		{
-			append = true;
-			continue;
-		}*/
-		if (line[length-2] == '\\')
+		if (length >= 2 && line[length-2] == '\\')
 		{
 			append = true;
 			continue;
@@ -151,19 +133,8 @@ int order()
 	{
 		Rule rule = *(Rule*)rules.data[i];	
 
-		char* empty_file = malloc(strlen(rule.target)+3);
-		strcpy(empty_file, ".@");	
-		strcat(empty_file, rule.target);	
-
 		struct stat target_stat;
-		struct stat timestamp_stat;
 		bool target_exists = stat(rule.target, &target_stat) == 0;
-		bool timestamp_exists = stat(empty_file, &timestamp_stat) == 0;
-		free(empty_file);
-
-		time_t target_time;
-		if (timestamp_exists) target_time = timestamp_stat.st_mtime;
-		else target_time = target_stat.st_mtime;
 
 		bool fire = rule.dependencies.size == 0;
 		for (ii = 0; ii < rule.dependencies.size; ii++)
@@ -180,7 +151,7 @@ int order()
 			else if (stat(dependency, &dependency_stat) == 0)
 			{
 				if (!target_exists) fire = true;
-				else if (dependency_stat.st_mtime > target_time) fire = true;
+				else if (dependency_stat.st_mtime > target_stat.st_mtime) fire = true;
 			}
 			else
 			{
@@ -198,70 +169,25 @@ int order()
 	return SUCCESS;
 }
 
-int execute(bool debug)
+int execute()
 {
-	init_hashtable(&target_dont_fire,1024,sizeof(char*));
-
 	size_t i;
 	size_t ii;
 	for (i = 0; i < rules_to_fire.size; i++)
 	{
 		Rule rule = *(Rule*)rules.data[(size_t)rules_to_fire.data[i]];
 
-		//Check if one of the dependencies is different
-		/*bool next = false;
-		size_t j;
-		for (j = 0; j < rule.dependencies.size; j++)
+		for (ii = 0; ii < rule.commands.size; ii++)
 		{
-			next = true;
-			char* dependency = rule.dependencies.data[j];
-			if (!exists_hashtable(&target_dont_fire, dependency)) next = false;
-		}*/
+			Command command = *(Command*)rule.commands.data[ii];
 
-		bool next = false;
-
-		if (!next) 
-		{
-			//Make backup copy of file
-			char* new_name = malloc(strlen(rule.target)+3);
-			strcpy(new_name, ".~");
-			strcat(new_name, rule.target);	
-			rename(rule.target, new_name);
-
-			for (ii = 0; ii < rule.commands.size; ii++)
-			{
-				Command command = *(Command*)rule.commands.data[ii];
-
-				char* times[3] = {NULL};
-				int modifiers = 0;
-				int offset = 0;
-				modifiers = execute_modifiers(command.command, times, &offset);
-				execute_command(command.command, modifiers, times, offset);
-			}
+			char* times[3] = {NULL};
+			int modifiers = 0;
+			int offset = 0;
+			modifiers = execute_modifiers(command.command, times, &offset);
+			int error = execute_command(command.command, modifiers, times, offset);
+			if (error != 0) return error;
 		}
-
-		/*char* empty_file = malloc(strlen(rule.target)+3);
-		strcpy(empty_file, ".@");
-		strcat(empty_file, rule.target);
-		if (!filecmp(rule.target, new_name))
-		{
-			if (debug) printf("Dmake: File %s unchanged.\n", rule.target);
-
-			Entry* entry = malloc(sizeof(Entry));
-			entry->key = strdup(rule.target);
-			entry->data = rule.target;
-			push_hashtable(&target_dont_fire, entry);
-			rename(new_name, rule.target);
-			int handle = creat(empty_file, S_IRUSR | S_IRGRP | S_IROTH);
-			close(handle);
-		}
-		else 
-		{
-			unlink(new_name);
-			if(access(empty_file, F_OK) != -1) unlink(empty_file);
-		}
-		free(empty_file);
-		free(new_name);*/
 	}
 
 	return SUCCESS;
@@ -367,9 +293,7 @@ int execute_command(char* command, int modifiers, char** times, int offset)
 		if (modifiers & AMPERSAND_MODIFIER) dup2(fd, 2);
 		close(fd);
 		
-		size_t x = count_digits((long)timeout.tv_sec);
-		size_t y = count_digits(timeout.tv_usec/10000);
-		char* time = malloc(1+x+y);
+		char* time = malloc(sizeof(char*));
 		sprintf(time, "%llu.%lu", (long long)timeout.tv_sec, timeout.tv_usec);
 
 		struct itimerval timerval = {};

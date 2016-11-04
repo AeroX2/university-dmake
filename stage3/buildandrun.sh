@@ -7,6 +7,7 @@ yes | rm -r test*
 tar xf stage3.tar
 cp stage3/test* -rp .
 
+echo Stage 3
 for i in {1..10}
 do
 	echo $i
@@ -15,5 +16,4 @@ do
 	cd ../
 	diff "test$i.out" output
 	diff "test$i.err" output.err
-	ls -A1ts test$i | diff test$i.ls -
 done

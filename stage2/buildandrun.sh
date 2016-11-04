@@ -3,6 +3,7 @@
 gcc -g -Wall dmake/*.c dmake/*.h -o dmake/dmake
 export PATH="$PATH:`pwd`/dmake"
 
+echo Stage 2
 for i in {1..10}
 do
 	echo $i

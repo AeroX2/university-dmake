@@ -19,7 +19,6 @@
 
 #include "utils.h"
 #include "array.h"
-#include "hashtable.h"
 
 #define SUCCESS         0
 #define SYNTAX_COLON    1

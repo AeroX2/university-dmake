@@ -18,6 +18,4 @@ size_t hash(char* string);
 size_t filehash(char* filename);
 
 bool filecmp(char* file1, char* file2);
-
-size_t count_digits(long long number);
 #endif

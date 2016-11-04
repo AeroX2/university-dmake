@@ -19,7 +19,6 @@
 
 #include "utils.h"
 #include "array.h"
-#include "hashtable.h"
 
 #define SUCCESS         0
 #define SYNTAX_COLON    1
@@ -62,7 +61,7 @@ typedef struct File
 
 int parse(FILE* file);
 int order();
-int execute(bool debug);
+int execute();
 int execute_modifiers(char* command, char** times, int* offset);
 int execute_command(char* command, int modifiers, char** times, int offset);
 

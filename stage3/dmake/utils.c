@@ -1,7 +1,7 @@
 /* Author: James Ridey 44805632
  *         james.ridey@students.mq.edu.au  
  * Creation Date: 13-10-2016
- * Last Modified: Mon 31 Oct 2016 20:02:55 AEDT
+ * Last Modified: Fri 04 Nov 2016 04:48:26 PM AEDT
  */
 
 #include "utils.h"
@@ -166,15 +166,4 @@ bool filecmp(char* file1, char* file2)
 	close(handle2);
 
 	return false;	
-}
-
-size_t count_digits(long long number)
-{
-	size_t length = 0;
-	long long temp;
-	for(temp = number; temp >= 1; temp /= 10)
-	{
-		length++;
-	} 
-	return length;
 }
